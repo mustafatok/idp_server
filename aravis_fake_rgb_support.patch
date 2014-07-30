@@ -1,0 +1,83 @@
+diff --git a/src/arv-fake-camera.xml b/src/arv-fake-camera.xml
+index 9b40d9c..ff8998a 100644
+--- a/src/arv-fake-camera.xml
++++ b/src/arv-fake-camera.xml
+@@ -451,7 +451,7 @@
+ 	<IntSwissKnife Name="PayloadSize" NameSpace="Standard">
+ 		<pVariable Name="WIDTH">Width</pVariable>
+ 		<pVariable Name="HEIGHT">Height</pVariable>
+-		<Formula>WIDTH * HEIGHT</Formula>
++		<Formula>WIDTH * HEIGHT * 3</Formula>
+ 	</IntSwissKnife>
+ 
+ 	<Integer Name="TLParamsLocked">
+diff --git a/src/arvfakecamera.c b/src/arvfakecamera.c
+index beb6330..084a988 100644
+--- a/src/arvfakecamera.c
++++ b/src/arvfakecamera.c
+@@ -154,7 +154,7 @@ arv_fake_camera_get_payload (ArvFakeCamera *camera)
+ 	width = _get_register (camera, ARV_FAKE_CAMERA_REGISTER_WIDTH);
+ 	height = _get_register (camera, ARV_FAKE_CAMERA_REGISTER_HEIGHT);
+ 
+-	return width * height;
++	return width * height * 3;
+ }
+ 
+ void
+@@ -190,14 +190,14 @@ arv_fake_camera_diagonal_ramp (ArvBuffer *buffer, void *fill_pattern_data,
+ {
+ 	double pixel_value;
+ 	double scale;
+-	guint32 x, y;
++	guint32 x, y, i;
+ 	guint32 width;
+ 	guint32 height;
+ 
+ 	if (buffer == NULL)
+ 		return;
+ 
+-	if (pixel_format != ARV_PIXEL_FORMAT_MONO_8)
++	if (pixel_format != ARV_PIXEL_FORMAT_RGB_8_PLANAR)
+ 		return;
+ 
+ 	width = buffer->width;
+@@ -205,17 +205,18 @@ arv_fake_camera_diagonal_ramp (ArvBuffer *buffer, void *fill_pattern_data,
+ 
+ 	scale = 1.0 + gain + log10 ((double) exposure_time_us / 10000.0);
+ 
++	for (i = 0; i < 3; i++)
+ 	for (y = 0; y < height; y++)
+ 		for (x = 0; x < width; x++) {
+ 			pixel_value = (x + buffer->frame_id + y) % 255;
+ 			pixel_value *= scale;
+ 
+ 			if (pixel_value < 0.0)
+-				((unsigned char *) buffer->data)[y * width + x] = 0;
++				((unsigned char *) buffer->data)[(width*height*i) + y * width + x] = 0;
+ 			else if (pixel_value > 255.0)
+-				((unsigned char *) buffer->data)[y * width + x] = 255;
++				((unsigned char *) buffer->data)[(width*height*i) + y * width + x] = 255;
+ 			else
+-				((unsigned char *) buffer->data)[y * width + x] = pixel_value;
++				((unsigned char *) buffer->data)[(width*height*i) + y * width + x] = pixel_value;
+ 		}
+ }
+ 
+@@ -272,7 +273,7 @@ arv_fake_camera_fill_buffer (ArvFakeCamera *camera, ArvBuffer *buffer, guint32 *
+ 
+ 	width = _get_register (camera, ARV_FAKE_CAMERA_REGISTER_WIDTH);
+ 	height = _get_register (camera, ARV_FAKE_CAMERA_REGISTER_HEIGHT);
+-	payload = width * height;
++	payload = width * height * 3;
+ 
+ 	if (buffer->size < payload) {
+ 		buffer->status = ARV_BUFFER_STATUS_SIZE_MISMATCH;
+@@ -489,7 +490,7 @@ arv_fake_camera_new (const char *serial_number)
+ 					ARV_FAKE_CAMERA_BINNING_HORIZONTAL_DEFAULT);
+ 	arv_fake_camera_write_register (fake_camera, ARV_FAKE_CAMERA_REGISTER_BINNING_VERTICAL,
+ 					ARV_FAKE_CAMERA_BINNING_HORIZONTAL_DEFAULT);
+-	arv_fake_camera_write_register (fake_camera, ARV_FAKE_CAMERA_REGISTER_PIXEL_FORMAT, ARV_PIXEL_FORMAT_MONO_8);
++	arv_fake_camera_write_register (fake_camera, ARV_FAKE_CAMERA_REGISTER_PIXEL_FORMAT, ARV_PIXEL_FORMAT_RGB_8_PLANAR);
+ 
+ 	arv_fake_camera_write_register (fake_camera, ARV_FAKE_CAMERA_REGISTER_ACQUISITION, 0);
+ 	arv_fake_camera_write_register (fake_camera, ARV_FAKE_CAMERA_REGISTER_ACQUISITION_MODE, 1);

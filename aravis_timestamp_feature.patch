@@ -1,0 +1,61 @@
+diff --git a/src/arvcamera.c b/src/arvcamera.c
+index cc2db59..974202c 100644
+--- a/src/arvcamera.c
++++ b/src/arvcamera.c
+@@ -1451,4 +1451,32 @@ arv_camera_class_init (ArvCameraClass *camera_class)
+ 							      G_PARAM_READABLE | G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
+ }
+ 
++gint
++arv_camera_get_timestamp_value (ArvCamera *camera)
++{
++	//g_return_val_if_fail (ARV_IS_CAMERA (camera), 0);
++	return arv_device_get_integer_feature_value (camera->priv->device, "GevTimestampValue");
++}
++
++gint
++arv_camera_get_timestamp_tick_freq (ArvCamera *camera)
++{
++	//g_return_val_if_fail (ARV_IS_CAMERA (camera), 0);
++	return arv_device_get_integer_feature_value (camera->priv->device, "GevTimestampTickFrequency");
++}
++
++void
++arv_camera_set_timestamp_control_latch (ArvCamera *camera)
++{
++	//g_return_if_fail (ARV_IS_CAMERA (camera));
++        arv_device_execute_command (camera->priv->device, "GevTimestampControlLatch");
++}
++
++void
++arv_camera_set_timestamp_control_reset (ArvCamera *camera)
++{
++	//g_return_if_fail (ARV_IS_CAMERA (camera));
++        arv_device_execute_command (camera->priv->device, "GevTimestampControlReset");
++}
++
+ G_DEFINE_TYPE (ArvCamera, arv_camera, G_TYPE_OBJECT)
+diff --git a/src/arvcamera.h b/src/arvcamera.h
+index d8026b0..e628941 100644
+--- a/src/arvcamera.h
++++ b/src/arvcamera.h
+@@ -107,6 +107,19 @@ void		arv_camera_get_exposure_time_bounds	(ArvCamera *camera, double *min, doubl
+ void		arv_camera_set_exposure_time_auto	(ArvCamera *camera, ArvAuto auto_mode);
+ ArvAuto		arv_camera_get_exposure_time_auto	(ArvCamera *camera);
+ 
++gint		arv_camera_get_timestamp_value		(ArvCamera *camera);
++gint		arv_camera_get_timestamp_tick_freq	(ArvCamera *camera);
++void		arv_camera_set_timestamp_control_latch  (ArvCamera *camera);
++/**
++ * arv_camera_set_timestamp_control_reset:
++ * @camera: a #ArvCamera
++ *
++ * Reset Timer (Only use this if frame acquisition stopped!)
++ *
++ * Since: 0.5.0
++ */
++void		arv_camera_set_timestamp_control_reset  (ArvCamera *camera);
++
+ /* Analog control */
+ 
+ gboolean 	arv_camera_is_gain_available		(ArvCamera *camera);
