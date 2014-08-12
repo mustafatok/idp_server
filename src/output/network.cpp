@@ -18,6 +18,8 @@
 
 using namespace std;
 
+#define PACKET_SIZE	24000
+
 UdpSocket::UdpSocket()
 {
         readCallback = [](uint8_t, uint8_t*, int) {
@@ -181,7 +183,13 @@ void UdpSocket::send(uint8_t type, uint8_t* data, int size)
         initHeader(packetHeader, type, size);
         send(packetHeader, 5); // transmit header
         if (data != nullptr && size > 0) {
-                send(data, size); // transmit payload
+		while ( size > PACKET_SIZE ) {
+			send( data, PACKET_SIZE);
+			data += PACKET_SIZE;
+			size -= PACKET_SIZE;
+		}
+		if ( size > 0)
+			send (data , size);
         }
 }
 

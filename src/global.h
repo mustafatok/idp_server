@@ -23,5 +23,4 @@ inline void initHeader(uint8_t* header, uint8_t type, int size)
         int32_t* payloadSize = reinterpret_cast<int32_t*>(header + 1);
         *payloadSize = size;
 }
-
 #endif // __GLOBAL_H

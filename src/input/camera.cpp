@@ -64,8 +64,11 @@ void CameraInput::operator()()
         arv_camera_set_binning (camera, XBINNING, YBINNING);
         colorspaceCallback(CSP_YUV420PLANAR);
         sizeCallback(WIDTH, HEIGHT);
-
-        arv_camera_set_frame_rate(camera, 100);
+#if X264_BUILD < 100
+        arv_camera_set_frame_rate(camera, 10);
+#else
+	arv_camera_set_frame_rate(camera, 50);
+#endif
         arv_camera_set_pixel_format(camera, ARV_PIXEL_FORMAT_YUV_422_PACKED);
 
         double exposureTime = arv_camera_get_exposure_time (camera);
