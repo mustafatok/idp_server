@@ -18,7 +18,7 @@ protected:
 public:
         explicit Input() = default;
         virtual ~Input() = default;
-
+        virtual void operator()(){}
         /*!
          * This callback provides the size according to the header of your video file!
          */

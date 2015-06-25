@@ -3,6 +3,7 @@
 #include <arv.h>
 #include <stdlib.h>
 #include <iostream>
+#include <mutex>
 
 extern "C" {
 #include <libavutil/avconfig.h>
@@ -17,16 +18,24 @@ extern "C" {
 
 using namespace std;
 
-const char* CAMERA = "Allied Vision Technologies-50-0536872642";
-//const char* CAMERA = "Fake_1";
-const int WIDTH = 1280;
-const int HEIGHT = 720;
+// const char* CAMERA = "Allied Vision Technologies-50-0536874357";
+// const char* CAMERA = "Allied Vision Technologies-50-0536872642";
+// const char* CAMERA = "Fake_1";
+const int WIDTH = 640;
+const int HEIGHT = 480;
 const int SENSORWIDTH = 2048;
 const int SENSORHEIGHT = 1088;
+
+std::mutex mtxRead;
+
 
 #define XBINNING ((SENSORWIDTH-WIDTH)/2)
 #define YBINNING ((SENSORHEIGHT-HEIGHT)/2)
 
+CameraInput::CameraInput(std::string inputCamera) : Input()
+{
+        cam_id = inputCamera;
+}
 CameraInput::CameraInput() : Input()
 {
 
@@ -49,17 +58,18 @@ void CameraInput::newBuffer(ArvStream* stream)
 
 void CameraInput::operator()()
 {
-        if (strncmp(CAMERA, "Fake_1", 4) == 0) {
+        mtxRead.lock();
+        if (strncmp(cam_id.c_str(), "Fake_1", 4) == 0) {
                 arv_enable_interface("Fake");
         }
 
-        camera = arv_camera_new(nullptr);
+        camera = arv_camera_new(cam_id.c_str());
 
         if (camera == nullptr) {
-                cerr << "Could not find a GenICam based camera called: " << CAMERA << endl;
+                cerr << "Could not find a GenICam based camera called: " << cam_id << endl;
                 return;
         }
-
+        cout << cam_id << " " << camera << endl;
         arv_camera_set_region(camera, 0, 0, WIDTH, HEIGHT);
         arv_camera_set_binning (camera, XBINNING, YBINNING);
         colorspaceCallback(CSP_YUV420PLANAR);
@@ -72,21 +82,22 @@ void CameraInput::operator()()
         arv_camera_set_pixel_format(camera, ARV_PIXEL_FORMAT_YUV_422_PACKED);
 
         double exposureTime = arv_camera_get_exposure_time (camera);
-        cout << "Exposure Time: " << exposureTime << endl;
+        cout << cam_id << " "<< "Exposure Time: " << exposureTime << endl;
 
         guint bufferSize = arv_camera_get_payload(camera);
+        cout << cam_id << " " << "bufferSize: " << bufferSize << endl;
 
         stream = arv_camera_create_stream(camera, nullptr, nullptr);
 
         if (stream == nullptr) {
-                cerr << "Could not create stream." << endl;
+                cerr << cam_id << " " << "Could not create stream." << endl;
                 return;
         }
-        cout << "bufferSize: " << bufferSize << endl;
         for (int i = 0; i < 50; i++) {
                 arv_stream_push_buffer(stream, arv_buffer_new(bufferSize, nullptr));
         }
 
+        if(bufferSize==0) exit(1);
         //arv_camera_set_timestamp_control_reset(camera);
 
         arv_camera_set_acquisition_mode(camera, ARV_ACQUISITION_MODE_CONTINUOUS);
@@ -114,10 +125,12 @@ void CameraInput::operator()()
         }
 
         stopped = false;
+        mtxRead.unlock();
 
 
         while (!stopped) {
-                usleep(100); // 100 us
+
+                // usleep(100); // 100 us
 
 
                 buffer = arv_stream_pop_buffer(stream);
@@ -135,6 +148,7 @@ void CameraInput::operator()()
                 }
 
                 arv_stream_push_buffer(stream, buffer);
+
         }
 
         arv_camera_stop_acquisition (camera);
@@ -142,6 +156,7 @@ void CameraInput::operator()()
         g_object_unref (camera);
         sws_freeContext(swsContext);
         statusCallback(STATUS_INPUT_END);
+
 }
 
 

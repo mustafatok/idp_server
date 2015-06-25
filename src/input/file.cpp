@@ -69,6 +69,7 @@ int32_t FileInput::decodeFile()
                 
                 ret = av_image_alloc(videoData, videoDataLinesize, codecContext->width,
                                      codecContext->height, codecContext->pix_fmt, 1);
+
                 if (ret < 0) {
                         cerr << "Could not allocate raw video buffer." << endl;
                         goto end;
