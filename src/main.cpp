@@ -7,6 +7,7 @@
 #include "input/file.h"
 #include "input/multifile.h"
 #include "encoder/encoder.h"
+#include "encoder/multiencoder.h"
 #include "output/network.h"
 #include "tools/timer.h"
 
@@ -15,9 +16,10 @@ using namespace std;
 // CameraInput videoInput("Allied Vision Technologies-50-0536872642");
 // FileInput videoInput("/home/mustafa/Downloads/STEREOTEST.avi");
 // MultiFileInput videoInput("file", "/LEFT.mp4", "/RIGHT.mp4");
-MultiFileInput videoInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642");
+MultiFileInput videoInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642", "mergedOutput");
 
 H264Encoder encoder;
+// MultiH264Encoder encoder;
 
 thread *encoderThread = nullptr;
 
@@ -44,13 +46,20 @@ int main(int argc, char* argv[])
 {
 
 	UdpSocket socket;
-	encoder.setDataCallback(&socket, &UdpSocket::send);
-	videoInput.setSizeCallback(&encoder, &H264Encoder::setSize);
-	videoInput.setFrameCallback(&encoder, &H264Encoder::pushFrame);
-	videoInput.setStatusCallback(&encoder, &H264Encoder::printStats);
-	videoInput.setColorspaceCallback(&encoder, &H264Encoder::setColorspace);
+	encoder.setSocket(&socket);
+	videoInput.setEncoder(1, &encoder);
 	socket.setConnectionCallback(onNewConnection);
 	socket.setCloseConnectionCallback(onCloseConnection);
+	
+	// socket.setCloseConnectionCallback(onCloseConnection);
+	// UdpSocket socket;
+	// encoder.setDataCallback(&socket, &UdpSocket::send);
+	// videoInput.setSizeCallback(&encoder, &H264Encoder::setSize);
+	// videoInput.setSingleFrameCallback(&encoder, &H264Encoder::pushFrame);
+	// videoInput.setStatusCallback(&encoder, &H264Encoder::printStats);
+	// videoInput.setColorspaceCallback(&encoder, &H264Encoder::setColorspace);
+	// socket.setConnectionCallback(onNewConnection);
+	// socket.setCloseConnectionCallback(onCloseConnection);
 
 	if (!socket.initServer(2525)) {
 		cerr << "Could not initiate udp socket." << endl;

@@ -1,4 +1,4 @@
-#include "encoder.h"
+#include "h264encoder.h"
 
 #include <assert.h>
 #include <string.h>
@@ -35,25 +35,13 @@ void H264Encoder::close()
         }
 }
 
-void H264Encoder::setSize(int width, int height)
+void H264Encoder::setSize(int id, int width, int height)
 {
-        _width = width;
-        _height = height;
+        Encoder::setSize(id, width, height);
         cout << "Video-Width: " << _width << endl;
         cout << "Video-Height: " << _height << endl;
         init();
 }
-
-void H264Encoder::setColorspace(int csp)
-{
-        this->csp = csp;
-}
-
-void H264Encoder::setDataCallback(data_callback_t* callback)
-{
-        dataCallback = callback;
-}
-
 
 void H264Encoder::init()
 {
@@ -116,7 +104,7 @@ void H264Encoder::init()
         // load basic profile which is best suited for low latency environment
         x264_param_apply_profile(&_parameters, "baseline");
 
-        if (csp == CSP_YUV420PLANAR) {
+        if (_csp == CSP_YUV420PLANAR) {
                 x264_picture_alloc(&_inputPicture, X264_CSP_I420, _width, _height);
         } else { // CSP_RGB8PACKED
                 //x264_picture_alloc(&_inputPicture, X264_CSP_RGB, _width, _height);
@@ -135,14 +123,14 @@ void H264Encoder::init()
 
         // sending the frame
 #if X264_BUILD > 100
-        dataCallback(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), ret);
+        _socket->send(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), ret);
 #else
-        dataCallback(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), 1);
+        _socket->send(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), 1);
 #endif
         cout << "sent header with payload size: " << ret << endl;
 }
 
-void H264Encoder::pushFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes)
+void H264Encoder::pushFrame(int id, uint8_t** framePlanes, int* framePlaneSizes, int planes)
 {
         assert(_encoder != nullptr);
 #ifdef ANALYZER
@@ -176,7 +164,7 @@ void H264Encoder::pushFrame(uint8_t** framePlanes, int* framePlaneSizes, int pla
 #ifdef ANALYZER
             qa.decode_and_compare(framePlanes, framePlaneSizes, reinterpret_cast<uint8_t*>(_nalFrameUnits[0].p_payload), frame_size);
 #endif
-            dataCallback(PROTOCOL_TYPE_FRAME, reinterpret_cast<uint8_t*>(_nalFrameUnits[0].p_payload), frame_size);
+            _socket->send(PROTOCOL_TYPE_FRAME, reinterpret_cast<uint8_t*>(_nalFrameUnits[0].p_payload), frame_size);
 #else
         if (frame_size >= 0) {
                 encodeCount += et;
@@ -201,7 +189,7 @@ void H264Encoder::pushFrame(uint8_t** framePlanes, int* framePlaneSizes, int pla
 #ifdef ANALYZER
         qa.decode_and_compare(framePlanes, framePlaneSizes, data, datasize);
 #endif
-        dataCallback(PROTOCOL_TYPE_FRAME, reinterpret_cast<uint8_t*>(data), datasize); 
+        _socket->send(PROTOCOL_TYPE_FRAME, reinterpret_cast<uint8_t*>(data), datasize); 
 #endif
             ++pts;
 
@@ -212,7 +200,7 @@ void H264Encoder::pushFrame(uint8_t** framePlanes, int* framePlaneSizes, int pla
 
 }
 
-void H264Encoder::printStats(int code)
+void H264Encoder::printStats(int id, int code)
 {
         if (code == STATUS_INPUT_END && frameCount != 0) {
                 cout << "Average encoding time: " << (encodeCount / frameCount) << endl;
