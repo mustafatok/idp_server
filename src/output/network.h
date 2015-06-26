@@ -6,6 +6,7 @@
 #include <thread>
 #include <netinet/in.h>
 #include <stdint.h>
+#include "../observer/encoderobserver.h"
 
 #define HEADER_SIZE 5
 
@@ -18,7 +19,7 @@
 
 typedef void connection_callback_t (struct sockaddr_in*, int);
 
-class UdpSocket {
+class UdpSocket : public EncoderObserver{
 public:
 	explicit UdpSocket();
 	virtual ~UdpSocket();
@@ -33,6 +34,10 @@ public:
 	void close();
 	void send(uint8_t* data, int size);
 	void send(uint8_t type, uint8_t* data, int size);
+
+	virtual void onEncoderDataReceived(uint8_t type, uint8_t* data, int size){
+		this->send(type, data, size);
+	}
 
 	template <typename ObjectType>
 	void setReadCallback(ObjectType *instance, void (ObjectType::*callback)(uint8_t, uint8_t*, int))

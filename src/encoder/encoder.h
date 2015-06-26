@@ -1,31 +1,33 @@
 #ifndef __ENCODER_H
 #define __ENCODER_H
 #include <stdint.h>
-#include "../output/network.h"
+#include "../observer/inputobserver.h"
+#include "../observer/encoderobserver.h"
 
-class Encoder {
+class Encoder{
 public:
-        virtual void setSize(int id, int width, int height) {
+        void setSize(int width, int height) {
             this->_width = width;
             this->_height = height;
         }
-        virtual void setColorspace(int id, int csp) {
+        void setColorspace(int csp) {
             this->_csp = csp;
         }
-        virtual void pushFrame(int id, uint8_t** framePlanes, int* framePlaneSizes, int planes) = 0;
-        virtual void pushFrame(int id, uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes) = 0;
-        virtual void printStats(int id, int code){}
 
-        void setSocket(UdpSocket* socket){
-            this->_socket = socket; 
+        void setEncoderObserver(EncoderObserver* observer){
+            this->_observer = observer; 
         }
+        virtual void postProcess(uint8_t type, uint8_t* data, int size){
+            _observer->onEncoderDataReceived(type, data, size);
+        }
+        virtual void stop(){}
 
 protected:
         int _width;
         int _height;
         int _csp = 0;
 
-        UdpSocket* _socket;
+        EncoderObserver* _observer;
 };
 
 

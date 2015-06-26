@@ -8,12 +8,9 @@
 #include "file.h"
 #include "camera.h"
 
-#define LEFT 1
-#define RIGHT 2
-
-class MultiFileInput : public Input, public Encoder {
+class MultiFileInput : public Input, public InputObserver {
 public:
-	explicit MultiFileInput(std::string type, std::string inputFileL, std::string inputFileR, std::string outputType);
+	explicit MultiFileInput(std::string type, std::string inputFileL, std::string inputFileR);
 	virtual ~MultiFileInput();
 
 	/*!
@@ -28,19 +25,26 @@ public:
 	void pushLeftFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes);
 	void pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes);
 
-    virtual void pushFrame(int id, uint8_t** framePlanes, int* framePlaneSizes, int planes){
+    virtual void onFrameReceived(int id, uint8_t** framePlanes, int* framePlaneSizes, int planes){
     	if(id == LEFT)
     		pushLeftFrame(framePlanes, framePlaneSizes, planes);
     	else
     		pushRightFrame(framePlanes, framePlaneSizes, planes);
     }
-    virtual void pushFrame(int id, uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes) {}
-    virtual void printStats(int id, int code){}
-    virtual void setSize(int id, int width, int height) {
+    virtual void onFrameReceived(int id, uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes) {}
+    virtual void onSizeChanged(int id, int width, int height) {
         this->_lWidth = this->_rWidth = width;
         this->_lHeight = this->_rHeight = height;
+		_observer->onSizeChanged(id, width , height);
     }
-	void printStats(int code);
+    virtual void onColorSpaceChanged(int id, int csp){
+   		_observer->onColorSpaceChanged(id, CSP_YUV420PLANAR);
+    };
+
+	virtual void onStatsCodeReceived(int id, int code){}
+
+    void printStats(int code);
+
 	void stop();
 private:
 
@@ -60,7 +64,6 @@ private:
 
 	void postFrame();
 	void mergedOutput();
-	bool stopped = false;
 
 	std::string outputType;
 };

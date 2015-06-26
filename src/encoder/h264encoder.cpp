@@ -35,9 +35,13 @@ void H264Encoder::close()
         }
 }
 
-void H264Encoder::setSize(int id, int width, int height)
+void H264Encoder::stop(){
+        close();
+}
+
+void H264Encoder::onSizeChanged(int id, int width, int height)
 {
-        Encoder::setSize(id, width, height);
+        Encoder::setSize(width, height);
         cout << "Video-Width: " << _width << endl;
         cout << "Video-Height: " << _height << endl;
         init();
@@ -123,14 +127,14 @@ void H264Encoder::init()
 
         // sending the frame
 #if X264_BUILD > 100
-        _socket->send(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), ret);
+        this->postProcess(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), ret);
 #else
-        _socket->send(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), 1);
+        this->postProcess(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), 1);
 #endif
         cout << "sent header with payload size: " << ret << endl;
 }
 
-void H264Encoder::pushFrame(int id, uint8_t** framePlanes, int* framePlaneSizes, int planes)
+void H264Encoder::onFrameReceived(int id, uint8_t** framePlanes, int* framePlaneSizes, int planes)
 {
         assert(_encoder != nullptr);
 #ifdef ANALYZER
@@ -164,7 +168,7 @@ void H264Encoder::pushFrame(int id, uint8_t** framePlanes, int* framePlaneSizes,
 #ifdef ANALYZER
             qa.decode_and_compare(framePlanes, framePlaneSizes, reinterpret_cast<uint8_t*>(_nalFrameUnits[0].p_payload), frame_size);
 #endif
-            _socket->send(PROTOCOL_TYPE_FRAME, reinterpret_cast<uint8_t*>(_nalFrameUnits[0].p_payload), frame_size);
+            this->postProcess(PROTOCOL_TYPE_FRAME, reinterpret_cast<uint8_t*>(_nalFrameUnits[0].p_payload), frame_size);
 #else
         if (frame_size >= 0) {
                 encodeCount += et;
@@ -189,7 +193,7 @@ void H264Encoder::pushFrame(int id, uint8_t** framePlanes, int* framePlaneSizes,
 #ifdef ANALYZER
         qa.decode_and_compare(framePlanes, framePlaneSizes, data, datasize);
 #endif
-        _socket->send(PROTOCOL_TYPE_FRAME, reinterpret_cast<uint8_t*>(data), datasize); 
+        this->postProcess(PROTOCOL_TYPE_FRAME, reinterpret_cast<uint8_t*>(data), datasize); 
 #endif
             ++pts;
 
@@ -200,7 +204,7 @@ void H264Encoder::pushFrame(int id, uint8_t** framePlanes, int* framePlaneSizes,
 
 }
 
-void H264Encoder::printStats(int id, int code)
+void H264Encoder::onStatsCodeReceived(int id, int code)
 {
         if (code == STATUS_INPUT_END && frameCount != 0) {
                 cout << "Average encoding time: " << (encodeCount / frameCount) << endl;

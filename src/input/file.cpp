@@ -42,6 +42,7 @@ FileInput::~FileInput()
 
 void FileInput::operator()()
 {
+        stopped = false;
         decodeFile(); 
 }
 
@@ -76,8 +77,8 @@ int32_t FileInput::decodeFile()
                 }
                 videoDataBuffersize = ret;
                 
-                _encoder->setColorspace(_id, CSP_YUV420PLANAR);
-                _encoder->setSize(_id, codecContext->width, codecContext->height);
+                _observer->onColorSpaceChanged(_id, CSP_YUV420PLANAR);
+                _observer->onSizeChanged(_id, codecContext->width, codecContext->height);
         }
 
         av_dump_format(formatContext, 0, _inputFile.c_str(), 0);
@@ -116,7 +117,7 @@ int32_t FileInput::decodeFile()
                 decodePacket(&gotFrame, true);
         } while(gotFrame);
 
-        _encoder->printStats(_id, STATUS_INPUT_END);
+        _observer->onStatsCodeReceived(_id, STATUS_INPUT_END);
 
 end:
         // cleanup memory
@@ -148,7 +149,7 @@ int32_t FileInput::decodePacket(int32_t *gotFrame, bool cached)
                         av_image_copy(videoData, videoDataLinesize,
                                 (const uint8_t **)(frame->data), frame->linesize,
                                 codecContext->pix_fmt, codecContext->width, codecContext->height);
-                        _encoder->pushFrame(_id, static_cast<uint8_t**>(videoData), static_cast<int*>(videoDataLinesize), 3);
+                        _observer->onFrameReceived(_id, static_cast<uint8_t**>(videoData), static_cast<int*>(videoDataLinesize), 3);
                 }
                 av_frame_unref(frame);
                 

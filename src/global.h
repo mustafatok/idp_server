@@ -17,6 +17,10 @@
 #define CSP_YUV420PLANAR                        0x01
 #define CSP_RGB8PACKED                          0x02
 
+#define LEFT 1
+#define RIGHT 2
+
+
 inline void initHeader(uint8_t* header, uint8_t type, int size)
 {
         header[0] = type;

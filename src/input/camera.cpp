@@ -59,6 +59,7 @@ void CameraInput::newBuffer(ArvStream* stream)
 void CameraInput::operator()()
 {
         mtxRead.lock();
+        stopped = false;
         if (strncmp(cam_id.c_str(), "Fake_1", 4) == 0) {
                 arv_enable_interface("Fake");
         }
@@ -72,8 +73,8 @@ void CameraInput::operator()()
         cout << cam_id << " " << camera << endl;
         arv_camera_set_region(camera, 0, 0, WIDTH, HEIGHT);
         arv_camera_set_binning (camera, XBINNING, YBINNING);
-        _encoder->setColorspace(_id, CSP_YUV420PLANAR);
-        _encoder->setSize(_id, WIDTH, HEIGHT);
+        _observer->onColorSpaceChanged(_id, CSP_YUV420PLANAR);
+        _observer->onSizeChanged(_id, WIDTH, HEIGHT);
 #if X264_BUILD < 100
         arv_camera_set_frame_rate(camera, 10);
 #else
@@ -144,7 +145,7 @@ void CameraInput::operator()()
                 if (buffer->status == ARV_BUFFER_STATUS_SUCCESS) { // the buffer contains a valid image
                         inputPlanes[0] = reinterpret_cast<uint8_t*>(buffer->data);
                         sws_scale(swsContext, static_cast<uint8_t**>(inputPlanes), inputRowSizes, 0, HEIGHT, static_cast<uint8_t**>(outputPlanes), outputRowSizes);
-                        _encoder->pushFrame(_id, outputPlanes, outputRowSizes, 3);
+                        _observer->onFrameReceived(_id, outputPlanes, outputRowSizes, 3);
                 }
 
                 arv_stream_push_buffer(stream, buffer);
@@ -155,7 +156,7 @@ void CameraInput::operator()()
         g_object_unref (stream);
         g_object_unref (camera);
         sws_freeContext(swsContext);
-        _encoder->printStats(_id, STATUS_INPUT_END);
+        _observer->onStatsCodeReceived(_id, STATUS_INPUT_END);
 
 }
 

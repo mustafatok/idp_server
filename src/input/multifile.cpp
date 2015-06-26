@@ -41,9 +41,8 @@ bool readyL = false;
 bool readyR = false;
 
 
-MultiFileInput::MultiFileInput(std::string type, std::string inputFileL, std::string inputFileR, std::string outputType) : Input()
+MultiFileInput::MultiFileInput(std::string type, std::string inputFileL, std::string inputFileR) : Input()
 {
-	this->outputType = outputType;
 	_waitingQ = 0;
 
 	if(type == "file"){
@@ -57,21 +56,36 @@ MultiFileInput::MultiFileInput(std::string type, std::string inputFileL, std::st
 		exit(1);
 	}
 
-	_fileInputL->setEncoder(LEFT, this);
-	_fileInputR->setEncoder(RIGHT, this);
-	// _fileInputL->setSizeCallback(this, &MultiFileInput::setLeftSize);
-	// _fileInputL->setSingleFrameCallback(this, &MultiFileInput::pushLeftFrame);
-	// _fileInputL->setStatusCallback(this, &MultiFileInput::printStats);
-	// _fileInputL->setColorspaceCallback(this, &MultiFileInput::setColorspace);
-
-	// _fileInputR->setSizeCallback(this, &MultiFileInput::setRightSize);
-	// _fileInputR->setSingleFrameCallback(this, &MultiFileInput::pushRightFrame);
-	// _fileInputR->setStatusCallback(this, &MultiFileInput::printStats);
-	// _fileInputR->setColorspaceCallback(this, &MultiFileInput::setColorspace);
+	_fileInputL->setInputObserver(LEFT, this);
+	_fileInputR->setInputObserver(RIGHT, this);
 
 }
 void MultiFileInput::stop() {
-		stopped = true; 
+		Input::stop();
+
+		_fileInputL->stop();
+		_fileInputR->stop();
+
+		if(_mThread != nullptr){
+			_mThread->join();
+			delete _mThread;
+		}
+		if(_lThread != nullptr){
+			_lThread->join();
+			delete _lThread;
+		}
+		if(_rThread != nullptr){
+			_rThread->join();
+			delete _rThread;
+		}
+		_mThread = _rThread = _lThread = nullptr;
+
+		readyL = false;
+		readyR = false;
+		_waitingQ = 0;
+
+	
+
 }
 MultiFileInput::~MultiFileInput()
 {
@@ -84,6 +98,9 @@ MultiFileInput::~MultiFileInput()
 
 void MultiFileInput::operator()()
 {
+	stopped = false;
+
+
 	if (_lThread == nullptr) {
 		_lThread = new thread([&](){
 			(*_fileInputL)();
@@ -148,7 +165,7 @@ void MultiFileInput::pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes,
 
 }
 
-void MultiFileInput::mergedOutput(){
+/*void MultiFileInput::mergedOutput(){
 	uint8_t *tFramePlanes[4];
 	int outputRowSizes[4] { 0 };
 
@@ -176,13 +193,13 @@ void MultiFileInput::mergedOutput(){
 		}
 	}
 
-	_encoder->setColorspace(this->_id, CSP_YUV420PLANAR);
-	_encoder->setSize(this->_id, _lWidth , _lHeight * 2);
-	_encoder->pushFrame(this->_id, tFramePlanes, tFramePlaneSizes, _lPlanes);
+	_observer->onColorSpaceChanged(this->_id, CSP_YUV420PLANAR);
+	_observer->onSizeChanged(this->_id, _lWidth , _lHeight * 2);
+	_observer->onFrameReceived(this->_id, tFramePlanes, tFramePlaneSizes, _lPlanes);
 
 	// TODO CLEANUP MEMORY LEAKS
 }
-
+*/
 
 /**
 This function assumes that the left image and the right image has the same width and height values.
@@ -192,13 +209,9 @@ void MultiFileInput::postFrame()
 	while(!stopped){
 		std::unique_lock<std::mutex> lck(mtxM);
 		while (_waitingQ != 2) cvM.wait(lck);
-
-		if(outputType == "mergedOutput"){
-			this->mergedOutput();
-		}else if(outputType == "blurredOutput"){
-			
-		}
 		
+		_observer->onFrameReceived(this->_id, _lFramePlanes, _lFramePlaneSizes, _lPlanes, _rFramePlanes, _rFramePlaneSizes, _rPlanes);
+
 		readyL = readyR = true;
 		_waitingQ = 0;
 		cv.notify_all();

@@ -3,22 +3,27 @@
 
 #include <functional>
 #include <stdlib.h>
-#include "../encoder/encoder.h"
+#include "../observer/inputobserver.h"
 #include "../global.h"
 
 class Input {
 protected:
-        Encoder* _encoder;
+        InputObserver* _observer;
         int _id;
+
+        bool stopped = false;
+
 public:
         explicit Input() = default;
         virtual ~Input() = default;
         virtual void operator()(){}
 
-        virtual void setEncoder(int id, Encoder* encoder){
-            this->_encoder = encoder; 
+        void setInputObserver(int id, InputObserver* observer){
+            this->_observer = observer; 
             this->_id = id;
         }
+        virtual void stop() { stopped = true; }
+
 };
 
 #endif // __INPUT_H

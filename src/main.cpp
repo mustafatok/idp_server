@@ -15,11 +15,11 @@ using namespace std;
 
 // CameraInput videoInput("Allied Vision Technologies-50-0536872642");
 // FileInput videoInput("/home/mustafa/Downloads/STEREOTEST.avi");
-// MultiFileInput videoInput("file", "/LEFT.mp4", "/RIGHT.mp4");
-MultiFileInput videoInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642", "mergedOutput");
+MultiFileInput videoInput("file", "/LEFT.mp4", "/RIGHT.mp4");
+// MultiFileInput videoInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642");
 
-H264Encoder encoder;
-// MultiH264Encoder encoder;
+// H264Encoder encoder;
+MultiH264Encoder encoder("mergedOutput");
 
 thread *encoderThread = nullptr;
 
@@ -36,6 +36,7 @@ void onCloseConnection(struct sockaddr_in*, int) {
 	if (encoderThread != nullptr) {
 		cout << "onCloseConnection called" << endl;
 		videoInput.stop();
+		encoder.stop();
 		encoderThread->join();
 		delete encoderThread;
 		encoderThread = nullptr;
@@ -46,20 +47,10 @@ int main(int argc, char* argv[])
 {
 
 	UdpSocket socket;
-	encoder.setSocket(&socket);
-	videoInput.setEncoder(1, &encoder);
+	encoder.setEncoderObserver(&socket);
+	videoInput.setInputObserver(1, &encoder);
 	socket.setConnectionCallback(onNewConnection);
 	socket.setCloseConnectionCallback(onCloseConnection);
-	
-	// socket.setCloseConnectionCallback(onCloseConnection);
-	// UdpSocket socket;
-	// encoder.setDataCallback(&socket, &UdpSocket::send);
-	// videoInput.setSizeCallback(&encoder, &H264Encoder::setSize);
-	// videoInput.setSingleFrameCallback(&encoder, &H264Encoder::pushFrame);
-	// videoInput.setStatusCallback(&encoder, &H264Encoder::printStats);
-	// videoInput.setColorspaceCallback(&encoder, &H264Encoder::setColorspace);
-	// socket.setConnectionCallback(onNewConnection);
-	// socket.setCloseConnectionCallback(onCloseConnection);
 
 	if (!socket.initServer(2525)) {
 		cerr << "Could not initiate udp socket." << endl;

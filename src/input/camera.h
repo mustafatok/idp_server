@@ -14,11 +14,9 @@ public:
 
         void operator()();
 
-        void stop() { stopped = true; }
         void processFrame(ArvBuffer* frameBuffer);
         void newBuffer(ArvStream* stream);
 private:
-        bool stopped = false;
 
         ArvCamera *camera;
         ArvStream *stream;

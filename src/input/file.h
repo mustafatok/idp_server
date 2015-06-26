@@ -23,8 +23,6 @@ public:
 	 */
 	void operator()();
 
-	virtual void stop() { stopped = true; }
-
 		
 private:
 	int32_t decodeFile();
@@ -44,7 +42,6 @@ private:
 	uint8_t *videoData[4] = {nullptr};
 	int videoDataLinesize[4];
 	int videoDataBuffersize;
-	bool stopped = false;
 };
 
 #endif // __FILE_H
