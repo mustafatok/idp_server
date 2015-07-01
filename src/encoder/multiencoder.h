@@ -26,11 +26,18 @@ public:
     virtual void onStatsCodeReceived(int id, int code);
 
     // Encoder Observer Methods.
-    virtual void onEncoderDataReceived(uint8_t type, uint8_t* data, int size);
+    virtual void onEncodedDataReceived(int id, uint8_t type, uint8_t* data, int size);
 
 protected:
-	void mergedOutput(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes);
+	void verticalConcat(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes);
+	void blur(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, bool lBlur, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes, bool rBlur);
+	void resize(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, bool lResize, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes, bool rResize);
 
+    void serializeAndSend();
+
+	uint8_t _lType; uint8_t* _lData; int _lSize;
+	uint8_t _rType; uint8_t* _rData; int _rSize;
+	int _tmpCnt = 0;
 private:
 	H264Encoder _encoders[2];
 	std::string _mode;

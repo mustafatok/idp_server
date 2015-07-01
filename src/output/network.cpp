@@ -129,7 +129,7 @@ void UdpSocket::operator()(){
 			headerValid = true;
 			payloadType = header[0];
 			uint8_t* sizePtr = &header[1];
-			payloadSize = *(reinterpret_cast<int32_t*>(sizePtr));
+			payloadSize = *(reinterpret_cast<uint32_t*>(sizePtr));
 
 			if (payloadSize > 0) {
 				payload = new uint8_t[payloadSize + 8]; // +8 because of decoder, otherwise we would have to copy everything!!
@@ -176,9 +176,9 @@ void UdpSocket::send(uint8_t* data, int size)
 
 void UdpSocket::send(uint8_t type, uint8_t* data, int size)
 {
-	uint8_t packetHeader[5];
+	uint8_t packetHeader[HEADER_SIZE];
 	initHeader(packetHeader, type, size);
-	send(packetHeader, 5); // transmit header
+	send(packetHeader, HEADER_SIZE); // transmit header
 	if (data != nullptr && size > 0) {
 	while ( size > PACKET_SIZE ) {
 		send( data, PACKET_SIZE);
@@ -189,5 +189,3 @@ void UdpSocket::send(uint8_t type, uint8_t* data, int size)
 		send (data , size);
 	}
 }
-
-

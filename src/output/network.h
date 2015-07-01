@@ -35,7 +35,7 @@ public:
 	void send(uint8_t* data, int size);
 	void send(uint8_t type, uint8_t* data, int size);
 
-	virtual void onEncoderDataReceived(uint8_t type, uint8_t* data, int size){
+	virtual void onEncodedDataReceived(int id, uint8_t type, uint8_t* data, int size){
 		this->send(type, data, size);
 	}
 

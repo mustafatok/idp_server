@@ -15,11 +15,13 @@ using namespace std;
 
 // CameraInput videoInput("Allied Vision Technologies-50-0536872642");
 // FileInput videoInput("/home/mustafa/Downloads/STEREOTEST.avi");
-MultiFileInput videoInput("file", "/LEFT.mp4", "/RIGHT.mp4");
+MultiFileInput videoInput("file", "/LEFT1.mp4", "/RIGHT1.mp4");
 // MultiFileInput videoInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642");
 
 // H264Encoder encoder;
-MultiH264Encoder encoder("mergedOutput");
+// MultiH264Encoder encoder("rightResized");
+MultiH264Encoder encoder("leftResized");
+// MultiH264Encoder encoder("verticalConcat");
 
 thread *encoderThread = nullptr;
 
@@ -47,8 +49,8 @@ int main(int argc, char* argv[])
 {
 
 	UdpSocket socket;
-	encoder.setEncoderObserver(&socket);
-	videoInput.setInputObserver(1, &encoder);
+	encoder.setEncoderObserver(0, &socket);
+	videoInput.setInputObserver(0, &encoder);
 	socket.setConnectionCallback(onNewConnection);
 	socket.setCloseConnectionCallback(onCloseConnection);
 

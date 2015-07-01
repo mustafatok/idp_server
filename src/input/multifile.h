@@ -63,9 +63,7 @@ private:
 	int _lPlanes, _rPlanes;
 
 	void postFrame();
-	void mergedOutput();
 
-	std::string outputType;
 };
 
 #endif // __MULTIFILE_H

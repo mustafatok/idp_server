@@ -64,7 +64,7 @@ void H264Encoder::init()
         _parameters.b_deterministic = 0; // cause for deviation?
         _parameters.i_fps_num = 60;
         _parameters.b_cabac = 0;
-        _parameters.rc.i_bitrate = 10000; // 10kb
+        _parameters.rc.i_bitrate = 1000; // 10kb
         _parameters.rc.f_rf_constant = 25;
         _parameters.b_repeat_headers = 1;
         _parameters.rc.i_rc_method = X264_RC_ABR;
@@ -97,7 +97,7 @@ void H264Encoder::init()
         // Rate Control algorithm:
         _parameters.rc.i_rc_method = X264_RC_ABR;
         _parameters.rc.b_stat_read = 0; // -> 1pass abr
-        _parameters.rc.i_bitrate = 10000; // 10kb
+        _parameters.rc.i_bitrate = 1000; // 10kb
         _parameters.rc.f_rf_constant = 25;
         _parameters.rc.f_rf_constant_max = 35;
 
@@ -131,7 +131,7 @@ void H264Encoder::init()
 #else
         this->postProcess(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), 1);
 #endif
-        cout << "sent header with payload size: " << ret << endl;
+        cout << "sent header with payload sizeee: " << ret << endl;
 }
 
 void H264Encoder::onFrameReceived(int id, uint8_t** framePlanes, int* framePlaneSizes, int planes)

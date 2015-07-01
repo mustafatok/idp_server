@@ -145,7 +145,7 @@ void MultiFileInput::pushLeftFrame(uint8_t** framePlanes, int* framePlaneSizes, 
 	readyL = false;
 
 	// TODO Delete
-	// usleep(30 * 1000);
+	usleep(30 * 1000);
 
 }
 void MultiFileInput::pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes){
@@ -161,45 +161,9 @@ void MultiFileInput::pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes,
 	readyR = false;
 
 	// TODO Delete
-	// usleep(30 * 1000);
+	usleep(30 * 1000);
 
 }
-
-/*void MultiFileInput::mergedOutput(){
-	uint8_t *tFramePlanes[4];
-	int outputRowSizes[4] { 0 };
-
-	av_image_alloc(static_cast<uint8_t**>(tFramePlanes), outputRowSizes, _lWidth, _lHeight*2, PIX_FMT_YUV420P, 1);
-
-	int *tFramePlaneSizes = (int *) malloc(_lPlanes * sizeof(int));
-
-	tFramePlaneSizes[0] = _lFramePlaneSizes[0];
-
-	for (int i = 0; i < _lPlanes; ++i)
-	{
-		tFramePlaneSizes[i] = _lFramePlaneSizes[i];
-		int size = _lFramePlaneSizes[i]*_lHeight;
-		if(i != 0){
-			size /= 2;
-		}
-		int j;
-		for (j = 0; j < size; ++j)
-		{
-			tFramePlanes[i][j] = _lFramePlanes[i][j];
-		}
-		for (; j < 2*size; ++j)
-		{
-			tFramePlanes[i][j] = _rFramePlanes[i][j-size];
-		}
-	}
-
-	_observer->onColorSpaceChanged(this->_id, CSP_YUV420PLANAR);
-	_observer->onSizeChanged(this->_id, _lWidth , _lHeight * 2);
-	_observer->onFrameReceived(this->_id, tFramePlanes, tFramePlaneSizes, _lPlanes);
-
-	// TODO CLEANUP MEMORY LEAKS
-}
-*/
 
 /**
 This function assumes that the left image and the right image has the same width and height values.
