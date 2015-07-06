@@ -22,9 +22,9 @@ using namespace std;
 
 UdpSocket::UdpSocket()
 {
-	readCallback = [](uint8_t, uint8_t*, int) {
-			// dummy
-	};
+	// readCallback = [](uint8_t, uint8_t*, int) {
+	// 		// dummy
+	// };
 }
 
 UdpSocket::~UdpSocket()
@@ -154,6 +154,7 @@ void UdpSocket::operator()(){
 						continue;
 				}
 			} else if (payloadType == PROTOCOL_TYPE_INIT) {
+				cout << "PROTOCOL_TYPE_INIT" << endl;
 				remoteAddress = incomming;
 				connectionCallback(&incomming, inlen);
 			} else if (payloadType == PROTOCOL_TYPE_CLOSE) {
@@ -161,7 +162,7 @@ void UdpSocket::operator()(){
 			}
 
 			headerValid = false;
-			readCallback(payloadType, payload, payloadSize);
+			// readCallback(payloadType, payload, payloadSize);
 		}
 	}
 }

@@ -1,8 +1,8 @@
 CXX    ?= g++
 CFLAGS  = -Wall -std=c++11 -pthread -Wno-literal-suffix -Wl,--no-undefined
-LIBS    = -L/usr/lib/x86_64-linux-gnu -lm -lgio-2.0 -lgobject-2.0 -lxml2 -lgthread-2.0 -lglib-2.0 -lz -ldl -lbz2 -lcrypto
+LIBS    = -L/usr/lib/x86_64-linux-gnu -lm -lgio-2.0 -lgobject-2.0 -lxml2 -lgthread-2.0 -lglib-2.0 -lz -ldl -lbz2 -lcrypto -lopencv_core -lopencv_imgproc -lopencv_highgui
 #LIBS   += $(shell pkg-config --cflags --libs libavcodec libavutil libavformat libavfilter libswscale)
-LIBS   += $(shell export PKG_CONFIG_PATH=`pwd`/build/stage/lib/pkgconfig/ && pkg-config --cflags aravis-0.4 x264 libavcodec libavutil libavfilter libswscale)
+LIBS   += $(shell export PKG_CONFIG_PATH=`pwd`/build/stage/lib/pkgconfig/ && pkg-config --cflags aravis-0.4 x264 libavcodec libavutil libavfilter libswscale opencv)
 SRC	= src/
 OBJS	= build/stage/lib/libaravis-0.4.a build/stage/lib/libx264.a build/stage/lib/libavformat.a \
           build/stage/lib/libavcodec.a build/stage/lib/libavdevice.a build/stage/lib/libavfilter.a \

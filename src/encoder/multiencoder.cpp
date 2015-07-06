@@ -3,6 +3,9 @@
 #include <assert.h>
 #include <string.h>
 #include <iostream>
+#include <cv.h>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 
 #include "../global.h"
 #include "../tools/psnr.h"
@@ -77,9 +80,81 @@ void MultiH264Encoder::verticalConcat(uint8_t** lframePlanes, int* lframePlaneSi
 	_encoders[0].onFrameReceived(0, tFramePlanes, lframePlaneSizes, lplanes);
 
 	// TODO CLEANUP MEMORY LEAKS
+	// av_freep(&tFramePlanes[0])
 }
 
 void MultiH264Encoder::blur(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, bool lBlur, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes, bool rBlur){
+	// Make it free afterwards...
+	SwsContext *swsctx = sws_getContext(_width, _height,
+                      PIX_FMT_YUV420P,
+                      _width, _height,
+                      PIX_FMT_BGR24,
+                      0, 0, 0, 0);
+
+	AVFrame* frame2 = av_frame_alloc();
+	int num_bytes = avpicture_get_size(PIX_FMT_BGR24, _width, _height);
+	uint8_t* frame2_buffer = (uint8_t *)av_malloc(num_bytes*sizeof(uint8_t));
+	avpicture_fill((AVPicture*)frame2, frame2_buffer, PIX_FMT_BGR24, _width, _height);
+
+	if(lBlur){
+		sws_scale(swsctx, lframePlanes, lframePlaneSizes, 0, _height, frame2->data, frame2->linesize);
+	}else if(rBlur){
+		sws_scale(swsctx, rframePlanes, rframePlaneSizes, 0, _height, frame2->data, frame2->linesize);
+	}else{
+		_encoders[0].onFrameReceived(0, lframePlanes, lframePlaneSizes, lplanes);
+		_encoders[1].onFrameReceived(0, rframePlanes, rframePlaneSizes, rplanes);
+		return;
+		// TODO cleanup.
+	}
+
+	cv::Mat src(_height,
+			_width,
+			CV_8UC3,
+			frame2->data[0]);
+
+
+	cv::Mat dst;
+	cv::GaussianBlur( src, dst, cv::Size( 5, 5 ), 0, 0 );
+ //  	cv::namedWindow( "Display window1", cv::WINDOW_AUTOSIZE );
+	// cv::imshow("Display window1", dst);  	
+	// cv::namedWindow( "Display window2", cv::WINDOW_AUTOSIZE );
+	// cv::imshow("Display window2", src);
+	
+	frame2->data[0] = dst.data;
+	// frame2->linesize[0] = src.step;
+	// avpicture_fill((AVPicture*)frame2, dst.data, PIX_FMT_BGR24, _width, _height);
+
+ 	// cv::waitKey(0); 
+	SwsContext *swsctx2 = sws_getContext(_width, _height,
+                      PIX_FMT_BGR24,
+                      _width, _height,
+                      PIX_FMT_YUV420P,
+                      0, 0, 0, 0);
+
+	AVFrame* frame3 = av_frame_alloc();
+	num_bytes = avpicture_get_size(PIX_FMT_YUV420P, _width, _height);
+	uint8_t* frame3_buffer = (uint8_t *)av_malloc(num_bytes*sizeof(uint8_t));
+	avpicture_fill((AVPicture*)frame3, frame3_buffer, PIX_FMT_YUV420P, _width, _height);
+	sws_scale(swsctx2, frame2->data, frame2->linesize, 0, _height, frame3->data, frame3->linesize);
+
+
+	if(lBlur){
+		_encoders[0].onFrameReceived(0, frame3->data, frame3->linesize, lplanes);
+		_encoders[1].onFrameReceived(0, rframePlanes, rframePlaneSizes, rplanes);
+	}else if(rBlur){
+		_encoders[0].onFrameReceived(0, lframePlanes, lframePlaneSizes, lplanes);
+		_encoders[1].onFrameReceived(0, frame3->data, frame3->linesize, rplanes);
+	}else{
+		_encoders[0].onFrameReceived(0, lframePlanes, lframePlaneSizes, lplanes);
+		_encoders[1].onFrameReceived(0, rframePlanes, rframePlaneSizes, rplanes);
+	}
+
+
+	// TODO CLEANUP MEMORY LEAKS
+	av_free(frame2_buffer);
+	av_frame_free(&frame2);
+	av_free(frame3_buffer);
+	av_frame_free(&frame3);
 
 }
 
@@ -110,7 +185,8 @@ void MultiH264Encoder::resize(uint8_t** lframePlanes, int* lframePlaneSizes, int
 	}
 
 	// TODO CLEANUP MEMORY LEAKS
-	//av_frame_free()
+	av_free(frame2_buffer);
+	av_frame_free(&frame2);
 
 }
 
@@ -147,8 +223,7 @@ void MultiH264Encoder::onEncodedDataReceived(int id, uint8_t type, uint8_t* data
 void MultiH264Encoder::serializeAndSend(){
 	uint8_t* data;
 	// TODO size can overflow??
-	uint32_t size = 	(_lSize + _rSize) + 2 
-				+ 2 * sizeof(uint32_t);
+	uint32_t size = 	(_lSize + _rSize) + 2 + 2 * sizeof(uint32_t);
 
 	std::cout << "size : "<< size << std::endl;
 

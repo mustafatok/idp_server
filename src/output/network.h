@@ -39,13 +39,13 @@ public:
 		this->send(type, data, size);
 	}
 
-	template <typename ObjectType>
-	void setReadCallback(ObjectType *instance, void (ObjectType::*callback)(uint8_t, uint8_t*, int))
-	{
-		readCallback = [=](uint8_t t, uint8_t* d, int s) {
-				(instance->*callback)(t, d, s);
-		};
-	}
+	// template <typename ObjectType>
+	// void setReadCallback(ObjectType *instance, void (ObjectType::*callback)(uint8_t, uint8_t*, int))
+	// {
+	// 	readCallback = [=](uint8_t t, uint8_t* d, int s) {
+	// 			(instance->*callback)(t, d, s);
+	// 	};
+	// }
 
 	void setConnectionCallback(connection_callback_t* callback)
 	{

@@ -15,13 +15,15 @@ using namespace std;
 
 // CameraInput videoInput("Allied Vision Technologies-50-0536872642");
 // FileInput videoInput("/home/mustafa/Downloads/STEREOTEST.avi");
-MultiFileInput videoInput("file", "/LEFT1.mp4", "/RIGHT1.mp4");
-// MultiFileInput videoInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642");
+// MultiFileInput videoInput("file", "/LEFT.mp4", "/RIGHT.mp4");
+MultiFileInput videoInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642");
 
 // H264Encoder encoder;
 // MultiH264Encoder encoder("rightResized");
-MultiH264Encoder encoder("leftResized");
-// MultiH264Encoder encoder("verticalConcat");
+// MultiH264Encoder encoder("leftResized");
+// MultiH264Encoder encoder("leftBlurred");
+// MultiH264Encoder encoder("rightBlurred");
+MultiH264Encoder encoder("verticalConcat");
 
 thread *encoderThread = nullptr;
 
