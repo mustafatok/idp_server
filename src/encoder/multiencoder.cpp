@@ -20,7 +20,7 @@ using namespace std;
 //#define ANALYZER
 #define LOGTIME
 
-MultiH264Encoder::MultiH264Encoder(std::string mode)
+MultiH264Encoder::MultiH264Encoder(int mode)
 {
 	this->_mode = mode;
 	_encoders[0].setEncoderObserver(LEFT, this);
@@ -41,15 +41,15 @@ void MultiH264Encoder::onFrameReceived(int id, uint8_t** framePlanes, int* frame
 	exit(1);
 }
 void MultiH264Encoder::onFrameReceived(int id, uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes) {
-	if(_mode == "verticalConcat"){
+	if(_mode == (int) MODE_VERTICALCONCAT){
 		this->verticalConcat(lframePlanes, lframePlaneSizes, lplanes, rframePlanes,  rframePlaneSizes, rplanes);
-	}else if(_mode == "leftResized"){
+	}else if(_mode == (int) MODE_LEFTRESIZED){
 		this->resize(lframePlanes, lframePlaneSizes, lplanes, true, rframePlanes,  rframePlaneSizes, rplanes, false);
-	}else if(_mode == "rightResized"){
+	}else if(_mode == (int) MODE_RIGHTRESIZED){
 		this->resize(lframePlanes, lframePlaneSizes, lplanes, false, rframePlanes,  rframePlaneSizes, rplanes, true);
-	}else if(_mode == "leftBlurred"){
+	}else if(_mode == (int) MODE_LEFTBLURRED){
 		this->blur(lframePlanes, lframePlaneSizes, lplanes, true, rframePlanes,  rframePlaneSizes, rplanes, false);
-	}else if(_mode == "rightBlurred"){
+	}else if(_mode == (int) MODE_RIGHTBLURRED){
 		this->blur(lframePlanes, lframePlaneSizes, lplanes, false, rframePlanes,  rframePlaneSizes, rplanes, true);
 	}
 }
@@ -196,7 +196,7 @@ void MultiH264Encoder::onStatsCodeReceived(int id, int code){
 
 // TODO : Make it multithreaded!!!  Do not forget to avoid memory leaks
 void MultiH264Encoder::onEncodedDataReceived(int id, uint8_t type, uint8_t* data, int size){
-	if(_mode == "verticalConcat"){
+	if(_mode == (int) MODE_VERTICALCONCAT){
 		_observer->onEncodedDataReceived(_id, type, data, size);
 		return;
 	}
@@ -248,15 +248,15 @@ void MultiH264Encoder::serializeAndSend(){
 
 void MultiH264Encoder::onSizeChanged(int id, int width, int height) { 
 	Encoder::setSize(width, height);
-	if(_mode == "verticalConcat"){
+	if(_mode == (int) MODE_VERTICALCONCAT){
 		_encoders[0].onSizeChanged(id, width, height*2);
 	}else{
-		if(_mode == "leftResized"){
+		if(_mode == (int) MODE_LEFTRESIZED){
 			// id == LEFT ? _encoders[0].onSizeChanged(id, width, height) : _encoders[1].onSizeChanged(id, width, height);
 			id == LEFT ? _encoders[0].onSizeChanged(id, width / 2, height / 2) : _encoders[1].onSizeChanged(id, width, height);
-		}else if(_mode == "rightResized"){
+		}else if(_mode == (int) MODE_RIGHTRESIZED){
 			id == LEFT ? _encoders[0].onSizeChanged(id, width, height) : _encoders[1].onSizeChanged(id, width / 2, height / 2);
-		}else if(_mode == "leftBlurred" || _mode == "rightBlurred"){
+		}else if(_mode == (int)MODE_LEFTBLURRED || _mode == (int) MODE_RIGHTBLURRED){
 			id == LEFT ? _encoders[0].onSizeChanged(id, width, height) : _encoders[1].onSizeChanged(id, width, height);
 		}
 	}

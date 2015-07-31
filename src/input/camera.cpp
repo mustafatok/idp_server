@@ -73,7 +73,7 @@ void CameraInput::operator()()
         cout << cam_id << " " << camera << endl;
         arv_camera_set_region(camera, 0, 0, WIDTH, HEIGHT);
         arv_camera_set_binning (camera, XBINNING, YBINNING);
-        _observer->onColorSpaceChanged(_id, CSP_YUV420PLANAR);
+        _observer->onColorSpaceChanged(_id, PIX_FMT_YUV420P);
         _observer->onSizeChanged(_id, WIDTH, HEIGHT);
 #if X264_BUILD < 100
         arv_camera_set_frame_rate(camera, 10);

@@ -77,7 +77,7 @@ int32_t FileInput::decodeFile()
                 }
                 videoDataBuffersize = ret;
                 
-                _observer->onColorSpaceChanged(_id, CSP_YUV420PLANAR);
+                _observer->onColorSpaceChanged(_id, PIX_FMT_YUV420P);
                 _observer->onSizeChanged(_id, codecContext->width, codecContext->height);
         }
 

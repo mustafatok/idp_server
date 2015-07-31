@@ -14,7 +14,7 @@ extern "C" {
 
 class MultiH264Encoder : public Encoder, public InputObserver, public EncoderObserver {
 public:
-	explicit MultiH264Encoder(std::string mode);
+	explicit MultiH264Encoder(int mode);
 	virtual ~MultiH264Encoder();
     void stop();
 	
@@ -40,7 +40,7 @@ protected:
 	int _tmpCnt = 0;
 private:
 	H264Encoder _encoders[2];
-	std::string _mode;
+	int _mode;
 };
 
 

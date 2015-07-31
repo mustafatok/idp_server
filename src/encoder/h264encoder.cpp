@@ -108,7 +108,7 @@ void H264Encoder::init()
         // load basic profile which is best suited for low latency environment
         x264_param_apply_profile(&_parameters, "baseline");
 
-        if (_csp == CSP_YUV420PLANAR) {
+        if (_csp == PIX_FMT_YUV420P) {
                 x264_picture_alloc(&_inputPicture, X264_CSP_I420, _width, _height);
         } else { // CSP_RGB8PACKED
                 //x264_picture_alloc(&_inputPicture, X264_CSP_RGB, _width, _height);

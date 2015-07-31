@@ -38,7 +38,7 @@ public:
 		_observer->onSizeChanged(id, width , height);
     }
     virtual void onColorSpaceChanged(int id, int csp){
-   		_observer->onColorSpaceChanged(id, CSP_YUV420PLANAR);
+   		_observer->onColorSpaceChanged(id, PIX_FMT_YUV420P);
     };
 
 	virtual void onStatsCodeReceived(int id, int code){}

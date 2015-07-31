@@ -190,3 +190,19 @@ void UdpSocket::send(uint8_t type, uint8_t* data, int size)
 		send (data , size);
 	}
 }
+
+// void UdpSocket::sendInitParameters(uint8_t* data, int size)
+// {
+// 	uint8_t packetHeader[HEADER_SIZE];
+// 	initHeader(packetHeader, type, size);
+// 	send(packetHeader, HEADER_SIZE); // transmit header
+// 	if (data != nullptr && size > 0) {
+// 	while ( size > PACKET_SIZE ) {
+// 		send( data, PACKET_SIZE);
+// 		data += PACKET_SIZE;
+// 		size -= PACKET_SIZE;
+// 	}
+// 	if ( size > 0)
+// 		send (data , size);
+// 	}
+// }
