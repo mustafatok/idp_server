@@ -204,19 +204,3 @@ void UdpSocket::initClientParameters(int32_t mode, int32_t lWidth, int32_t lHeig
 	*(tmp + 4) = rHeight;
 	this->send(PROTOCOL_TYPE_CLIENT_INIT, &(data[0]), size);
 }
-
-// void UdpSocket::sendInitParameters(uint8_t* data, int size)
-// {
-// 	uint8_t packetHeader[HEADER_SIZE];
-// 	initHeader(packetHeader, type, size);
-// 	send(packetHeader, HEADER_SIZE); // transmit header
-// 	if (data != nullptr && size > 0) {
-// 	while ( size > PACKET_SIZE ) {
-// 		send( data, PACKET_SIZE);
-// 		data += PACKET_SIZE;
-// 		size -= PACKET_SIZE;
-// 	}
-// 	if ( size > 0)
-// 		send (data , size);
-// 	}
-// }

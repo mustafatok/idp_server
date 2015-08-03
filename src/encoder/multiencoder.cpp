@@ -56,6 +56,8 @@ void MultiH264Encoder::onFrameReceived(int id, uint8_t** lframePlanes, int* lfra
 		this->blur(lframePlanes, lframePlaneSizes, lplanes, true, rframePlanes,  rframePlaneSizes, rplanes, false);
 	}else if(_mode == (int) MODE_RIGHTBLURRED){
 		this->blur(lframePlanes, lframePlaneSizes, lplanes, false, rframePlanes,  rframePlaneSizes, rplanes, true);
+	}else if(_mode == (int) MODE_INTERLEAVING){
+		this->interleaving(lframePlanes, lframePlaneSizes, lplanes, rframePlanes,  rframePlaneSizes, rplanes);
 	}
 }
 
@@ -86,6 +88,19 @@ void MultiH264Encoder::verticalConcat(uint8_t** lframePlanes, int* lframePlaneSi
 
 	// TODO CLEANUP MEMORY LEAKS
 	// av_freep(&tFramePlanes[0])
+}
+void MultiH264Encoder::interleaving(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes){
+	
+	if(leftFlagInterleaving == 0){
+		_encoders[1].onFrameReceived(0, rframePlanes, rframePlaneSizes, rplanes);
+		leftFlagInterleaving = 1;
+	}else if(leftFlagInterleaving == 1){
+		_encoders[0].onFrameReceived(0, lframePlanes, lframePlaneSizes, lplanes);
+		leftFlagInterleaving = 0;
+	}else{
+		_encoders[0].onFrameReceived(0, lframePlanes, lframePlaneSizes, lplanes);
+		_encoders[1].onFrameReceived(0, rframePlanes, rframePlaneSizes, rplanes);
+	}
 }
 
 void MultiH264Encoder::blur(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, bool lBlur, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes, bool rBlur){
@@ -217,9 +232,26 @@ void MultiH264Encoder::onEncodedDataReceived(int id, uint8_t type, uint8_t* data
 		std::cout << "rightSize : "<< _rSize << std::endl;
 	}
 	if((++_tmpCnt) == 2){
-		serializeAndSend();
-
-		_tmpCnt = 0;
+		if(_mode == (int) MODE_INTERLEAVING){
+			if(leftFlagInterleaving == -1){
+				serializeAndSend();
+				if(_lType != PROTOCOL_TYPE_HEADER && _rType != PROTOCOL_TYPE_HEADER){
+					leftFlagInterleaving = 1;
+				}else{
+					_tmpCnt--;
+				}
+			}else{
+				if(id == LEFT){
+					_observer->onEncodedDataReceived(_id,  PROTOCOL_TYPE_LFRAME, _lData, _lSize);
+				}else{
+					_observer->onEncodedDataReceived(_id,  PROTOCOL_TYPE_RFRAME, _rData, _rSize);
+				}
+			}
+			_tmpCnt--;
+		}else{
+			serializeAndSend();
+			_tmpCnt = 0;
+		}
 
 	}
 
@@ -261,6 +293,8 @@ void MultiH264Encoder::onSizeChanged(int id, int width, int height) {
 		}else if(_mode == (int) MODE_RIGHTRESIZED){
 			id == LEFT ? _encoders[0].onSizeChanged(id, width, height) : _encoders[1].onSizeChanged(id, width / 2, height / 2);
 		}else if(_mode == (int)MODE_LEFTBLURRED || _mode == (int) MODE_RIGHTBLURRED){
+			id == LEFT ? _encoders[0].onSizeChanged(id, width, height) : _encoders[1].onSizeChanged(id, width, height);
+		}else if(_mode == (int) MODE_INTERLEAVING){
 			id == LEFT ? _encoders[0].onSizeChanged(id, width, height) : _encoders[1].onSizeChanged(id, width, height);
 		}
 	}
