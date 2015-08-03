@@ -46,6 +46,7 @@ public:
     void printStats(int code);
 
 	void stop();
+	std::string type(){return _type;}
 private:
 
 	Input* _fileInputL;
@@ -63,6 +64,9 @@ private:
 	int _lPlanes, _rPlanes;
 
 	void postFrame();
+
+protected:
+	std::string _type;
 
 };
 

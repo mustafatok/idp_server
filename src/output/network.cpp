@@ -191,6 +191,20 @@ void UdpSocket::send(uint8_t type, uint8_t* data, int size)
 	}
 }
 
+void UdpSocket::initClientParameters(int32_t mode, int32_t lWidth, int32_t lHeight, int32_t rWidth, int32_t rHeight){
+	int size = sizeof(int32_t) * 5;
+	uint8_t* data;
+	data = new uint8_t[size];
+	int32_t* tmp;
+	tmp = reinterpret_cast<int32_t*>(data);
+	*tmp = mode;
+	*(tmp + 1) = lWidth;
+	*(tmp + 2) = lHeight;
+	*(tmp + 3) = rWidth;
+	*(tmp + 4) = rHeight;
+	this->send(PROTOCOL_TYPE_CLIENT_INIT, &(data[0]), size);
+}
+
 // void UdpSocket::sendInitParameters(uint8_t* data, int size)
 // {
 // 	uint8_t packetHeader[HEADER_SIZE];

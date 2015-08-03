@@ -14,7 +14,7 @@ extern "C" {
 
 class MultiH264Encoder : public Encoder, public InputObserver, public EncoderObserver {
 public:
-	explicit MultiH264Encoder(int mode);
+	explicit MultiH264Encoder(int mode, int defaultWidth, int defaultHeight);
 	virtual ~MultiH264Encoder();
     void stop();
 	

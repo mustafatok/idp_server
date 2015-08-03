@@ -72,7 +72,7 @@ public:
 				(instance->*callback)(saddr, size);
 		};
 	}
-
+	void initClientParameters(int32_t mode, int32_t lWidth, int32_t lHeigth, int32_t rWidth, int32_t rHeight);
 private:
 	int _socket = -1;
 	struct sockaddr_in localAddress;

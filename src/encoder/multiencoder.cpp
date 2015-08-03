@@ -20,11 +20,16 @@ using namespace std;
 //#define ANALYZER
 #define LOGTIME
 
-MultiH264Encoder::MultiH264Encoder(int mode)
+MultiH264Encoder::MultiH264Encoder(int mode, int defaultWidth, int defaultHeight)
 {
 	this->_mode = mode;
 	_encoders[0].setEncoderObserver(LEFT, this);
 	_encoders[1].setEncoderObserver(RIGHT, this);
+
+	_lWidth = (mode == (int)MODE_LEFTRESIZED) ? defaultWidth / 2 : defaultWidth;
+	_lHeight = (mode == (int)MODE_LEFTRESIZED) ? defaultHeight / 2 : defaultHeight;
+	_rWidth = (mode == (int)MODE_RIGHTRESIZED) ? defaultWidth / 2 : defaultWidth;
+	_rHeight = (mode == (int)MODE_RIGHTRESIZED) ? defaultHeight / 2 : defaultHeight;
 }
 
 MultiH264Encoder::~MultiH264Encoder()
@@ -252,7 +257,6 @@ void MultiH264Encoder::onSizeChanged(int id, int width, int height) {
 		_encoders[0].onSizeChanged(id, width, height*2);
 	}else{
 		if(_mode == (int) MODE_LEFTRESIZED){
-			// id == LEFT ? _encoders[0].onSizeChanged(id, width, height) : _encoders[1].onSizeChanged(id, width, height);
 			id == LEFT ? _encoders[0].onSizeChanged(id, width / 2, height / 2) : _encoders[1].onSizeChanged(id, width, height);
 		}else if(_mode == (int) MODE_RIGHTRESIZED){
 			id == LEFT ? _encoders[0].onSizeChanged(id, width, height) : _encoders[1].onSizeChanged(id, width / 2, height / 2);

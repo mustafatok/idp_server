@@ -43,6 +43,7 @@ bool readyR = false;
 
 MultiFileInput::MultiFileInput(std::string type, std::string inputFileL, std::string inputFileR) : Input()
 {
+	this->_type = type;
 	_waitingQ = 0;
 
 	if(type == "file"){

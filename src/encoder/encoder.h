@@ -23,12 +23,22 @@ public:
         }
         virtual void stop(){}
 
+        virtual int width(){ return _width; }
+        virtual int height(){ return _height; }       
+        // TODO : They are just valid for multifile. Edit this!
+        virtual int lWidth(){ return _lWidth; }
+        virtual int lHeight(){ return _lHeight; }
+        virtual int rWidth(){ return _rWidth; }
+        virtual int rHeight(){ return _rHeight; }
+
 protected:
         int _width;
         int _height;
         int _csp = 0;
         int _id; 
 
+        // TODO : They are just valid for multifile. Edit this!
+        int _lWidth, _lHeight, _rWidth, _rHeight;
         EncoderObserver* _observer;
 };
 

@@ -27,7 +27,7 @@ thread *encoderThread = nullptr;
 
 void onNewConnection(struct sockaddr_in*, int) {
 	cout << "onNewConnection called" << endl;
-	output.send(PROTOCOL_TYPE_MODE_INIT, nullptr, mode);
+	output.initClientParameters(mode, encoder->lWidth(), encoder->lHeight(), encoder->rWidth(), encoder->rHeight());
 	if (encoderThread == nullptr) {
 		encoderThread = new thread([&](){
 				videoInput();
@@ -83,7 +83,10 @@ int main(int argc, char* argv[])
 			cout << "MODE_INTERLEAVING" << endl;
 		}
 		if(mode != -1){
-			encoder = new MultiH264Encoder(mode);
+			if(videoInput.type() == "camera")
+				encoder = new MultiH264Encoder(mode, 640, 480);
+			else
+				encoder = new MultiH264Encoder(mode, 960, 540);
 		}
 
 		encoder->setEncoderObserver(0, &output);
