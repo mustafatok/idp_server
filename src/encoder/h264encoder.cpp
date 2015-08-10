@@ -12,9 +12,14 @@ using namespace std;
 //#define ANALYZER
 #define LOGTIME
 
-H264Encoder::H264Encoder()
+H264Encoder::H264Encoder(int bitRate) : _bitRate(bitRate)
 {
 
+}
+H264Encoder::H264Encoder()
+{
+    this->_bitRate = 10000;
+    this->_fps = 25;
 }
 
 H264Encoder::~H264Encoder()
@@ -62,15 +67,16 @@ void H264Encoder::init()
         _parameters.i_width = _width;
         _parameters.i_height = _height;
         _parameters.b_deterministic = 0; // cause for deviation?
-        _parameters.i_fps_num = 60;
+        _parameters.i_fps_num = this->_fps;
         _parameters.b_cabac = 0;
-        _parameters.rc.i_bitrate = 10000; // 10kb
+        _parameters.rc.i_bitrate = this->_bitRate; // 10kb
         _parameters.rc.f_rf_constant = 25;
         _parameters.b_repeat_headers = 1;
         _parameters.rc.i_rc_method = X264_RC_ABR;
         _parameters.analyse.i_me_method = X264_ME_DIA;
         _parameters.analyse.i_subpel_refine = 1;
         _parameters.b_pre_scenecut = 1;
+        _parameters.b_deblocking_filter = 1; 
 
         x264_picture_alloc(&_inputPicture, X264_CSP_I420, _width, _height);
         _encoder = x264_encoder_open(&_parameters);
@@ -83,7 +89,7 @@ void H264Encoder::init()
         _parameters.b_deterministic = 0;
 
         // framerate related
-        _parameters.i_fps_num = 60; // TODO: set correct framerate
+        _parameters.i_fps_num = this->_fps; // TODO: set correct framerate
         _parameters.b_intra_refresh = 1;
 
         _parameters.b_cabac = 0;
@@ -97,13 +103,16 @@ void H264Encoder::init()
         // Rate Control algorithm:
         _parameters.rc.i_rc_method = X264_RC_ABR;
         _parameters.rc.b_stat_read = 0; // -> 1pass abr
-        _parameters.rc.i_bitrate = 10000; // 10kb
+        _parameters.rc.i_bitrate = this->_bitRate; // 10kb
         _parameters.rc.f_rf_constant = 25;
         _parameters.rc.f_rf_constant_max = 35;
 
         // add headers to every IDR frame, use format from annex b in h264 standard
         _parameters.b_repeat_headers = 1;
         _parameters.b_annexb = 1;
+
+
+        _parameters.b_deblocking_filter = 1; 
 
         // load basic profile which is best suited for low latency environment
         x264_param_apply_profile(&_parameters, "baseline");
@@ -162,7 +171,7 @@ void H264Encoder::onFrameReceived(int id, uint8_t** framePlanes, int* framePlane
         if (frame_size > 0) {
                 encodeCount += et;
 #ifdef LOGTIME
-                cout << "Encoding of frame took " << et << " ys." << endl;
+                // cout << "Encoding of frame took " << et << " ys." << endl;
 #endif
 
 #ifdef ANALYZER
@@ -173,7 +182,7 @@ void H264Encoder::onFrameReceived(int id, uint8_t** framePlanes, int* framePlane
         if (frame_size >= 0) {
                 encodeCount += et;
 #ifdef LOGTIME
-                cout << "Encoding of frame took " << et << " ys." << endl;
+                // cout << "Encoding of frame took " << et << " ys." << endl;
 #endif
 
                 uint8_t *dataptr = data;

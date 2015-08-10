@@ -15,30 +15,34 @@ using namespace std;
 
 // CameraInput videoInput("Allied Vision Technologies-50-0536872642");
 // FileInput videoInput("/home/mustafa/Downloads/STEREOTEST.avi");
-MultiFileInput videoInput("file", "/LEFT.mp4", "/RIGHT.mp4");
+// MultiFileInput videoInput("file", "/LEFT.mp4", "/RIGHT.mp4");
+MultiFileInput *videoInput;
 // MultiFileInput videoInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642");
 
 // H264Encoder encoder;
 
-MultiH264Encoder *encoder;
+MultiH264Encoder *encoder = nullptr;
 UdpSocket output;
 int mode = -1;
 thread *encoderThread = nullptr;
 
-void onNewConnection(struct sockaddr_in*, int) {
-	cout << "onNewConnection called" << endl;
+void init(){
 	output.initClientParameters(mode, encoder->lWidth(), encoder->lHeight(), encoder->rWidth(), encoder->rHeight());
 	if (encoderThread == nullptr) {
 		encoderThread = new thread([&](){
-				videoInput();
+			(*videoInput)();
 		});
 	}
+}
+void onNewConnection(struct sockaddr_in*, int) {
+	cout << "onNewConnection called" << endl;
+	init();
 }
 
 void onCloseConnection(struct sockaddr_in*, int) {
 	if (encoderThread != nullptr) {
 		cout << "onCloseConnection called" << endl;
-		videoInput.stop();
+		videoInput->stop();
 		encoder->stop();
 		encoderThread->join();
 		delete encoderThread;
@@ -48,57 +52,99 @@ void onCloseConnection(struct sockaddr_in*, int) {
 
 int main(int argc, char* argv[])
 {
-	cout << "1 - MODE_VERTICALCONCAT" << endl                    
-		 <<	"2 - MODE_LEFTRESIZED" << endl
-		 << "3 - MODE_RIGHTRESIZED" << endl 
-		 << "4 - MODE_LEFTBLURRED" << endl
-		 << "5 - MODE_RIGHTBLURRED" << endl
-		 << "6 - MODE_INTERLEAVING" << endl;
+
 
 	string input;
 	for(;;) {
+		cout << "1 - MODE_BEST" << endl                    
+			 <<	"2 - MODE_VERTICALCONCAT - 2000" << endl
+			 <<	"3 - MODE_LEFTRESIZED - 200 - 800" << endl
+			 <<	"4 - MODE_RIGHTRESIZED - 800 - 200" << endl
+			 <<	"5 - MODE_LEFTBLURRED - 400 - 600" << endl
+			 <<	"6 - MODE_RIGHTBLURRED - 600 - 400" << endl
+			 <<	"7 - MODE_INTERLEAVING - 2000 - 2000" << endl;
 
+		 
 		cin >> input;
 		if (input == "exit") {
 				break;
 		}
+		int lbitRate = 5000;
+		int rbitRate = 5000;
 
 		if (input == "1") {
 			mode = (int) MODE_VERTICALCONCAT;
-			cout << "MODE_VERTICALCONCAT" << endl;
+			cout << "MODE_BEST - 5000" << endl;
 		}else if (input == "2") {
-			mode = (int) MODE_LEFTRESIZED;
-			cout << "MODE_LEFTRESIZED" << endl;
+			cout << "MODE_VERTICALCONCAT - 2000" << endl;
+			mode = (int) MODE_VERTICALCONCAT;
+			lbitRate = 2000;
 		}else if (input == "3") {
-			mode = (int) MODE_RIGHTRESIZED;
-			cout << "MODE_RIGHTRESIZED" << endl;
+			cout << "MODE_LEFTRESIZED - 200 - 800" << endl;
+			mode = (int) MODE_LEFTRESIZED;
+			lbitRate = 200;
+			rbitRate = 800;
 		}else if (input == "4") {
-			mode = (int) MODE_LEFTBLURRED;
-			cout << "MODE_LEFTBLURRED" << endl;
+			cout << "MODE_RIGHTRESIZED - 800 - 200" << endl;
+			mode = (int) MODE_RIGHTRESIZED;
+			lbitRate = 800;
+			rbitRate = 200;
 		}else if (input == "5") {
-			mode = (int) MODE_RIGHTBLURRED;
-			cout << "MODE_RIGHTBLURRED" << endl;
+			cout << "MODE_LEFTBLURRED - 400 - 600" << endl;
+			mode = (int) MODE_LEFTBLURRED;
+			lbitRate = 400;
+			rbitRate = 600;
 		}else if (input == "6") {
+			cout << "MODE_RIGHTBLURRED - 600 - 400" << endl;
+			mode = (int) MODE_RIGHTBLURRED;
+			lbitRate = 600;
+			rbitRate = 400;
+		}else if (input == "7") {
+			cout << "MODE_INTERLEAVING - 2000 - 2000" << endl;
 			mode = (int) MODE_INTERLEAVING;
-			cout << "MODE_INTERLEAVING" << endl;
+			lbitRate = 2000;
+			rbitRate = 2000;
 		}
-		if(mode != -1){
-			if(videoInput.type() == "camera")
-				encoder = new MultiH264Encoder(mode, 640, 480);
-			else
-				encoder = new MultiH264Encoder(mode, 960, 540);
-		}
+		if(mode == -1) continue;
 
+		bool flag = false;
+		if(encoder == nullptr){
+			output.setConnectionCallback(onNewConnection);
+			output.setCloseConnectionCallback(onCloseConnection);
+
+			if (!output.initServer(2525)) {
+				cerr << "Could not initiate udp socket." << endl;
+				return -1;
+			}
+		}else{
+			videoInput->stop();
+			encoder->stop();
+			encoderThread->join();
+			delete encoderThread;
+			delete encoder;
+			delete videoInput;
+			flag = true;
+			encoderThread = nullptr;
+			 
+
+		}
+		videoInput = new MultiFileInput("file", "/LEFT.mp4", "/RIGHT.mp4");
+
+		if(videoInput->type() == "camera"){
+			encoder = new MultiH264Encoder(mode, 640, 480);
+			encoder->setFps(25);
+		}else{
+			encoder = new MultiH264Encoder(mode, 960, 540);
+			encoder->setFps(25);
+		}
+		
+		encoder->setBitRate(lbitRate, rbitRate);
 		encoder->setEncoderObserver(0, &output);
-		videoInput.setInputObserver(0, encoder);
+		videoInput->setInputObserver(0, encoder);
 
-		output.setConnectionCallback(onNewConnection);
-		output.setCloseConnectionCallback(onCloseConnection);
-
-		if (!output.initServer(2525)) {
-			cerr << "Could not initiate udp socket." << endl;
-			return -1;
-		}
+		if(flag)
+			init();
+		// videoInput->start();
 
 	}
 	

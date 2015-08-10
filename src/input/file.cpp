@@ -145,11 +145,14 @@ int32_t FileInput::decodePacket(int32_t *gotFrame, bool cached)
                 }
 
                 if (*gotFrame) {
-                        // ouput must  be _un_aligned(!)
-                        av_image_copy(videoData, videoDataLinesize,
-                                (const uint8_t **)(frame->data), frame->linesize,
-                                codecContext->pix_fmt, codecContext->width, codecContext->height);
-                        _observer->onFrameReceived(_id, static_cast<uint8_t**>(videoData), static_cast<int*>(videoDataLinesize), 3);
+                        if(!stopped){
+                            // ouput must  be _un_aligned(!)
+                            av_image_copy(videoData, videoDataLinesize,
+                                    (const uint8_t **)(frame->data), frame->linesize,
+                                    codecContext->pix_fmt, codecContext->width, codecContext->height);
+                            _observer->onFrameReceived(_id, static_cast<uint8_t**>(videoData), static_cast<int*>(videoDataLinesize), 3);
+                  
+                        }
                 }
                 av_frame_unref(frame);
                 

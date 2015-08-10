@@ -45,7 +45,13 @@ public:
 
     void printStats(int code);
 
-	void stop();
+	virtual void stop();
+	virtual void start(){
+		_fileInputL->start();
+		_fileInputR->start();
+		stopped = false;
+	}
+
 	std::string type(){return _type;}
 private:
 

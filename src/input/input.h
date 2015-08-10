@@ -23,6 +23,7 @@ public:
             this->_id = id;
         }
         virtual void stop() { stopped = true; }
+        virtual void start() { stopped = false; }
 
 };
 

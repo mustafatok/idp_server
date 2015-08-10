@@ -34,6 +34,7 @@ MultiH264Encoder::MultiH264Encoder(int mode, int defaultWidth, int defaultHeight
 
 MultiH264Encoder::~MultiH264Encoder()
 {
+	this->stop();
 }
 
 void MultiH264Encoder::stop(){
@@ -224,12 +225,12 @@ void MultiH264Encoder::onEncodedDataReceived(int id, uint8_t type, uint8_t* data
 		_lType = type;
 		_lData = data;
 		_lSize = size;
-		std::cout << "leftSize : "<< _lSize << std::endl;
+		// std::cout << "leftSize : "<< _lSize << std::endl;
 	}else if(id == RIGHT){
 		_rType = type;
 		_rData = data;
 		_rSize = size;
-		std::cout << "rightSize : "<< _rSize << std::endl;
+		// std::cout << "rightSize : "<< _rSize << std::endl;
 	}
 	if((++_tmpCnt) == 2){
 		if(_mode == (int) MODE_INTERLEAVING){
@@ -262,7 +263,7 @@ void MultiH264Encoder::serializeAndSend(){
 	// TODO size can overflow??
 	uint32_t size = 	(_lSize + _rSize) + 2 + 2 * sizeof(uint32_t);
 
-	std::cout << "size : "<< size << std::endl;
+	// std::cout << "size : "<< size << std::endl;
 
 	data = new uint8_t[size];
 	

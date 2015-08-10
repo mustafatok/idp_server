@@ -62,31 +62,40 @@ MultiFileInput::MultiFileInput(std::string type, std::string inputFileL, std::st
 
 }
 void MultiFileInput::stop() {
-		Input::stop();
 
 		_fileInputL->stop();
 		_fileInputR->stop();
 
+		Input::stop();
+		cvM.notify_one();
+		
 		if(_mThread != nullptr){
 			_mThread->join();
 			delete _mThread;
+			cout << "MJOIN" << endl;
+
 		}
+		Input::stop();
+
 		if(_lThread != nullptr){
 			_lThread->join();
 			delete _lThread;
+			cout << "LJOIN" << endl;
+
 		}
+		Input::stop();
+		
 		if(_rThread != nullptr){
 			_rThread->join();
 			delete _rThread;
+			cout << "RJOIN" << endl;
+
 		}
 		_mThread = _rThread = _lThread = nullptr;
 
 		readyL = false;
 		readyR = false;
 		_waitingQ = 0;
-
-	
-
 }
 MultiFileInput::~MultiFileInput()
 {
@@ -121,19 +130,20 @@ void MultiFileInput::setLeftSize(int width, int height)
 {
 	_lWidth = width;
 	_lHeight = height;
-	cout << "Left-Video-Width: " << _lWidth << endl;
-	cout << "Left-Video-Height: " << _lHeight << endl;
+	// cout << "Left-Video-Width: " << _lWidth << endl;
+	// cout << "Left-Video-Height: " << _lHeight << endl;
 }
 
 void MultiFileInput::setRightSize(int width, int height)
 {
 	_rWidth = width;
 	_rHeight = height;
-	cout << "Right-Video-Width: " << _rWidth << endl;
-	cout << "Right-Video-Height: " << _rHeight << endl;
+	// cout << "Right-Video-Width: " << _rWidth << endl;
+	// cout << "Right-Video-Height: " << _rHeight << endl;
 }
 
 void MultiFileInput::pushLeftFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes){
+	// cout << "LEFTPUSH" << endl;
 	_lFramePlanes = framePlanes;
 	_lFramePlaneSizes = framePlaneSizes;
 	_lPlanes = planes;
@@ -142,14 +152,15 @@ void MultiFileInput::pushLeftFrame(uint8_t** framePlanes, int* framePlaneSizes, 
 	cvM.notify_one();
 
 	std::unique_lock<std::mutex> lck(mtx);
-	while (!readyL) cv.wait(lck);
+	while (!readyL && !stopped) cv.wait(lck);
 	readyL = false;
 
 	// TODO Delete
-	usleep(30 * 1000);
+	usleep(40 * 1000);
 
 }
 void MultiFileInput::pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes){
+	// cout << "RIGHTPUSH" << endl;
 	_rFramePlanes = framePlanes;
 	_rFramePlaneSizes = framePlaneSizes;
 	_rPlanes = planes;
@@ -158,11 +169,11 @@ void MultiFileInput::pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes,
 	cvM.notify_one();
 	
 	std::unique_lock<std::mutex> lck(mtx);
-	while (!readyR) cv.wait(lck);
+	while (!readyR && !stopped) cv.wait(lck);
 	readyR = false;
 
 	// TODO Delete
-	usleep(30 * 1000);
+	usleep(40 * 1000);
 
 }
 
@@ -173,8 +184,9 @@ void MultiFileInput::postFrame()
 {
 	while(!stopped){
 		std::unique_lock<std::mutex> lck(mtxM);
-		while (_waitingQ != 2) cvM.wait(lck);
+		while (_waitingQ != 2 && !stopped) cvM.wait(lck);
 		
+		if(stopped) return;
 		_observer->onFrameReceived(this->_id, _lFramePlanes, _lFramePlaneSizes, _lPlanes, _rFramePlanes, _rFramePlaneSizes, _rPlanes);
 
 		readyL = readyR = true;

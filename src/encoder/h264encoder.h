@@ -15,6 +15,7 @@ extern "C" {
 class H264Encoder : public Encoder, public InputObserver{
 public:
 		explicit H264Encoder();
+		explicit H264Encoder(int bitRate);
 		virtual ~H264Encoder();
 
 		// Observer Methods.
@@ -26,6 +27,14 @@ public:
 
 		void close();
         void stop();
+
+		virtual void setBitRate(int bitRate){
+			_bitRate = bitRate;
+		}
+
+		virtual void setFps(int fps){
+			this->_fps = fps;
+		}
 
 
 private:
@@ -47,6 +56,8 @@ private:
 
 		int64_t frameCount = 0;
 		int64_t encodeCount = 0;
+
+		int _bitRate = 10000, _fps = 25;
 
 #if X264_BUILD < 76
 #define	DATA_SIZE 1000000 // 1MB - if client crashes it might be because old x264 versions (older than 17 Sep 2009)

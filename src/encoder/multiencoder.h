@@ -28,6 +28,17 @@ public:
     // Encoder Observer Methods.
     virtual void onEncodedDataReceived(int id, uint8_t type, uint8_t* data, int size);
 
+    virtual void setBitRate(int lbitRate){
+    	_encoders[0].setBitRate(lbitRate);
+    }
+    virtual void setBitRate(int lbitRate, int rbitRate){
+    	_encoders[0].setBitRate(lbitRate);
+    	_encoders[1].setBitRate(rbitRate);
+    }
+    virtual void setFps(int fps){
+    	_encoders[0].setFps(fps);
+    	_encoders[1].setFps(fps);
+    }
 protected:
 	void verticalConcat(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes);
 	void interleaving(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes);
