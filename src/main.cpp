@@ -13,13 +13,8 @@
 
 using namespace std;
 
-// CameraInput videoInput("Allied Vision Technologies-50-0536872642");
-// FileInput videoInput("/home/mustafa/Downloads/STEREOTEST.avi");
-// MultiFileInput videoInput("file", "/LEFT.mp4", "/RIGHT.mp4");
 MultiFileInput *videoInput;
 // MultiFileInput videoInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642");
-
-// H264Encoder encoder;
 
 MultiH264Encoder *encoder = nullptr;
 UdpSocket output;
@@ -52,7 +47,13 @@ void onCloseConnection(struct sockaddr_in*, int) {
 
 int main(int argc, char* argv[])
 {
-
+	bool camera = false;
+	for(int i = 1; i < argc; ++i) {
+		std::string value(argv[i]);
+		if (value == "--camera") {
+			camera = true;
+		}
+	}
 
 	string input;
 	for(;;) {
@@ -128,13 +129,17 @@ int main(int argc, char* argv[])
 			 
 
 		}
-		videoInput = new MultiFileInput("file", "/LEFT.mp4", "/RIGHT.mp4");
+		if(camera){
+			videoInput = new MultiFileInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642");
+		}else{
+			videoInput = new MultiFileInput("file", "/LEFT.mp4", "/RIGHT.mp4");
+		}
 
 		if(videoInput->type() == "camera"){
-			encoder = new MultiH264Encoder(mode, 640, 480);
+			encoder = new MultiH264Encoder(mode, 960, 544);
 			encoder->setFps(25);
 		}else{
-			encoder = new MultiH264Encoder(mode, 960, 540);
+			encoder = new MultiH264Encoder(mode, 960, 544);
 			encoder->setFps(25);
 		}
 		

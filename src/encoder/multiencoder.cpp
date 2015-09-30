@@ -88,7 +88,7 @@ void MultiH264Encoder::verticalConcat(uint8_t** lframePlanes, int* lframePlaneSi
 	_encoders[0].onFrameReceived(0, tFramePlanes, lframePlaneSizes, lplanes);
 
 	// TODO CLEANUP MEMORY LEAKS
-	// av_freep(&tFramePlanes[0])
+	av_freep(&tFramePlanes[0]);
 }
 void MultiH264Encoder::interleaving(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes){
 	
@@ -136,16 +136,9 @@ void MultiH264Encoder::blur(uint8_t** lframePlanes, int* lframePlaneSizes, int l
 
 	cv::Mat dst;
 	cv::GaussianBlur( src, dst, cv::Size( 5, 5 ), 0, 0 );
- //  	cv::namedWindow( "Display window1", cv::WINDOW_AUTOSIZE );
-	// cv::imshow("Display window1", dst);  	
-	// cv::namedWindow( "Display window2", cv::WINDOW_AUTOSIZE );
-	// cv::imshow("Display window2", src);
 	
 	frame2->data[0] = dst.data;
-	// frame2->linesize[0] = src.step;
-	// avpicture_fill((AVPicture*)frame2, dst.data, PIX_FMT_BGR24, _width, _height);
 
- 	// cv::waitKey(0); 
 	SwsContext *swsctx2 = sws_getContext(_width, _height,
                       PIX_FMT_BGR24,
                       _width, _height,
@@ -176,7 +169,10 @@ void MultiH264Encoder::blur(uint8_t** lframePlanes, int* lframePlaneSizes, int l
 	av_frame_free(&frame2);
 	av_free(frame3_buffer);
 	av_frame_free(&frame3);
-
+	sws_freeContext(swsctx);
+	sws_freeContext(swsctx2);
+	src.release();
+	dst.release();
 }
 
 void MultiH264Encoder::resize(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, bool lResize, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes, bool rResize){
@@ -208,7 +204,7 @@ void MultiH264Encoder::resize(uint8_t** lframePlanes, int* lframePlaneSizes, int
 	// TODO CLEANUP MEMORY LEAKS
 	av_free(frame2_buffer);
 	av_frame_free(&frame2);
-
+	sws_freeContext(swsctx);
 }
 
 void MultiH264Encoder::onStatsCodeReceived(int id, int code){

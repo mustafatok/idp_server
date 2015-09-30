@@ -89,7 +89,7 @@ void H264Encoder::init()
         _parameters.b_deterministic = 0;
 
         // framerate related
-        _parameters.i_fps_num = this->_fps; // TODO: set correct framerate
+        _parameters.i_fps_num = this->_fps; 
         _parameters.b_intra_refresh = 1;
 
         _parameters.b_cabac = 0;

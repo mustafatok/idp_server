@@ -14,8 +14,6 @@ public:
 
         void operator()();
 
-        void processFrame(ArvBuffer* frameBuffer);
-        void newBuffer(ArvStream* stream);
 private:
 
         ArvCamera *camera;

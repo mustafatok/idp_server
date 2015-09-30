@@ -12,6 +12,11 @@ OBJS	= build/stage/lib/libaravis-0.4.a build/stage/lib/libx264.a build/stage/lib
 ARAVIS_SRC = git://git.gnome.org/aravis
 ARAVIS_VER = 3bc7e90
 
+# choose x264 version, 
+# 0: original x264 rate control, 
+# 1: Rho domain RC from Fan Zhang,
+X264RC=0
+
 X264_SRC   = git://git.videolan.org/x264.git
 X264_VER   = a5831aa		# newest version on May, 22nd 2014
 X264_FLAGS = --enable-static #--enable-debug
@@ -59,15 +64,18 @@ libs:
 		cd build/src/ffmpeg && ./configure --prefix=`pwd`/../../stage/ $(FFMPEG_FLAGS) && make && make install; \
 	fi
 	# x264
-	if [ ! -f build/src/x264/configure ]; then \
+	if [ $(X264RC) -eq 0 ] && [ ! -f build/src/x264/configure ]; then \
 		cd build/src/ && git clone $(X264_SRC) && cd x264 && git checkout $(X264_VER); \
 	fi
-	if [ ! -f build/stage/lib/libx264.a ]; then \
+	if [ $(X264RC) -eq 0 ]; then \
 		cd build/src/x264/ && ./configure --prefix=`pwd`/../../stage/ $(X264_FLAGS) && make && make install; \
+	fi
+	if [ $(X264RC) -eq 1 ]; then \
+		cd build/src/x264_rho_min/ && ./configure --prefix=`pwd`/../../stage/ $(X264_FLAGS) && make && make install; \
 	fi
 
 libs_clean:
-	rm -rf ./build
+	# rm -rf ./build
 
 server_clean:
 	rm -f build/$(BINARY) build/$(BINARYD)

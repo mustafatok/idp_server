@@ -130,20 +130,17 @@ void MultiFileInput::setLeftSize(int width, int height)
 {
 	_lWidth = width;
 	_lHeight = height;
-	// cout << "Left-Video-Width: " << _lWidth << endl;
-	// cout << "Left-Video-Height: " << _lHeight << endl;
 }
 
 void MultiFileInput::setRightSize(int width, int height)
 {
 	_rWidth = width;
 	_rHeight = height;
-	// cout << "Right-Video-Width: " << _rWidth << endl;
-	// cout << "Right-Video-Height: " << _rHeight << endl;
 }
 
 void MultiFileInput::pushLeftFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes){
-	// cout << "LEFTPUSH" << endl;
+	if(stopped) return;
+
 	_lFramePlanes = framePlanes;
 	_lFramePlaneSizes = framePlaneSizes;
 	_lPlanes = planes;
@@ -155,12 +152,13 @@ void MultiFileInput::pushLeftFrame(uint8_t** framePlanes, int* framePlaneSizes, 
 	while (!readyL && !stopped) cv.wait(lck);
 	readyL = false;
 
-	// TODO Delete
-	usleep(40 * 1000);
+	if(_type == "file")
+		usleep(40 * 1000);
 
 }
 void MultiFileInput::pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes){
-	// cout << "RIGHTPUSH" << endl;
+	if(stopped) return;
+	
 	_rFramePlanes = framePlanes;
 	_rFramePlaneSizes = framePlaneSizes;
 	_rPlanes = planes;
@@ -172,8 +170,8 @@ void MultiFileInput::pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes,
 	while (!readyR && !stopped) cv.wait(lck);
 	readyR = false;
 
-	// TODO Delete
-	usleep(40 * 1000);
+	if(_type == "file")
+		usleep(40 * 1000);
 
 }
 
@@ -188,20 +186,13 @@ void MultiFileInput::postFrame()
 		
 		if(stopped) return;
 		_observer->onFrameReceived(this->_id, _lFramePlanes, _lFramePlaneSizes, _lPlanes, _rFramePlanes, _rFramePlaneSizes, _rPlanes);
-
+	
 		readyL = readyR = true;
 		_waitingQ = 0;
 		cv.notify_all();
 	}
 
 }
-
-// TODO Take a look later
-void MultiFileInput::printStats(int code)
-{
-	//statusCallback(STATUS_INPUT_END);
-}
-
 
 
 

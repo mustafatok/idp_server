@@ -25,6 +25,7 @@ public:
 	void pushLeftFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes);
 	void pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes);
 
+	// Observer methods override.
     virtual void onFrameReceived(int id, uint8_t** framePlanes, int* framePlaneSizes, int planes){
     	if(id == LEFT)
     		pushLeftFrame(framePlanes, framePlaneSizes, planes);
@@ -42,8 +43,7 @@ public:
     };
 
 	virtual void onStatsCodeReceived(int id, int code){}
-
-    void printStats(int code);
+    virtual void printStats(int code) {}
 
 	virtual void stop();
 	virtual void start(){
