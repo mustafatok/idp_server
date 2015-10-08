@@ -18,7 +18,7 @@
 
 using namespace std;
 
-#define PACKET_SIZE	24000
+#define PACKET_SIZE	50000
 
 UdpSocket::UdpSocket()
 {
@@ -32,42 +32,6 @@ UdpSocket::~UdpSocket()
 	close();
 }
 
-bool UdpSocket::initClient(std::string address, uint16_t port)
-{
-	// create socket
-	if ((_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
-		cerr << "Could not initialize udp socket." << endl;
-		return false;
-	}
-
-	// initialize local interface and port number
-	memset(static_cast<void*>(&localAddress), 0, sizeof(struct sockaddr_in));
-	localAddress.sin_addr.s_addr = htonl(INADDR_ANY);
-	localAddress.sin_family = AF_INET;
-	localAddress.sin_port = 0;
-
-	// bind socket to local interfaces and some random port number
-	if (bind(_socket, reinterpret_cast<struct sockaddr*>(&localAddress), sizeof(struct sockaddr_in)) < 0) {
-		cerr << "Could not bind socket." << endl;
-		return false;
-	}
-
-	// initialize remote address
-	memset(static_cast<void*>(&remoteAddress), 0, sizeof(struct sockaddr_in));
-	remoteAddress.sin_port = htons(port);
-	remoteAddress.sin_family = AF_INET;
-
-	if (inet_aton(address.c_str(), &remoteAddress.sin_addr) == 0) {
-		cerr << "Could not parse ip address!" << endl;
-		return false;
-	}
-
-	readerThread = new thread([&](){
-		(*this)();
-	});
-
-	return true;
-}
 
 bool UdpSocket::initServer(uint16_t port)
 {
@@ -156,6 +120,7 @@ void UdpSocket::operator()(){
 			} else if (payloadType == PROTOCOL_TYPE_INIT) {
 				cout << "PROTOCOL_TYPE_INIT" << endl;
 				remoteAddress = incomming;
+				remoteAddress.sin_port = htons(7070);
 				connectionCallback(&incomming, inlen);
 			} else if (payloadType == PROTOCOL_TYPE_CLOSE) {
 				closeConnectionCallback(&incomming, inlen);
@@ -177,17 +142,18 @@ void UdpSocket::send(uint8_t* data, int size)
 
 void UdpSocket::send(uint8_t type, uint8_t* data, int size)
 {
-	uint8_t packetHeader[HEADER_SIZE];
-	initHeader(packetHeader, type, size);
-	send(packetHeader, HEADER_SIZE); // transmit header
+
+	uint8_t tmpData[2 + size];
+	tmpData[0] = type;
+    memcpy(&(tmpData[1]), data,size);
+    tmpData[size + 1] = '\n';
+  
 	if (data != nullptr && size > 0) {
-	while ( size > PACKET_SIZE ) {
-		send( data, PACKET_SIZE);
-		data += PACKET_SIZE;
-		size -= PACKET_SIZE;
-	}
-	if ( size > 0)
-		send (data , size);
+		if ( size > PACKET_SIZE ) {
+			return;
+		}
+		if ( size > 0)
+			send (&(tmpData[0]) , size + 2);
 	}
 }
 

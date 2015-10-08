@@ -9,6 +9,7 @@
 #include "../observer/encoderobserver.h"
 
 #define HEADER_SIZE 5
+#define BUFFER_SIZE 50000
 
 /*
 * Protocol:
@@ -29,7 +30,6 @@ public:
 	 */
 	void operator()();
 
-	bool initClient(std::string address, uint16_t port);
 	bool initServer(uint16_t port);
 	void close();
 	void send(uint8_t* data, int size);
@@ -89,6 +89,7 @@ private:
 	int32_t payloadPosition = 0;
 	uint8_t *payload = nullptr;
 
+	uint8_t buffer[BUFFER_SIZE];
 };
 
 #endif // __NETWORK_H

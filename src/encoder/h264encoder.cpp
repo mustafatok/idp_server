@@ -136,9 +136,9 @@ void H264Encoder::init()
 
         // sending the frame
 #if X264_BUILD > 100
-        this->postProcess(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), ret);
+        // this->postProcess(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), ret);
 #else
-        this->postProcess(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), 1);
+        // this->postProcess(PROTOCOL_TYPE_HEADER, reinterpret_cast<uint8_t*>(_nalHeaderUnits[0].p_payload), 1);
 #endif
         cout << "sent header with payload sizeee: " << ret << endl;
 }
