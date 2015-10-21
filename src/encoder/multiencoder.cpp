@@ -4,8 +4,8 @@
 #include <string.h>
 #include <iostream>
 #include <cv.h>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 #include "../global.h"
 #include "../tools/psnr.h"
@@ -20,16 +20,16 @@ using namespace std;
 //#define ANALYZER
 #define LOGTIME
 
-MultiH264Encoder::MultiH264Encoder(int mode, int defaultWidth, int defaultHeight)
+MultiH264Encoder::MultiH264Encoder(int mode, int defaultWidth, int defaultHeight, int resizeFactor)
 {
 	this->_mode = mode;
 	_encoders[0].setEncoderObserver(LEFT, this);
 	_encoders[1].setEncoderObserver(RIGHT, this);
 
-	_lWidth = (mode == (int)MODE_LEFTRESIZED) ? defaultWidth / 2 : defaultWidth;
-	_lHeight = (mode == (int)MODE_LEFTRESIZED) ? defaultHeight / 2 : defaultHeight;
-	_rWidth = (mode == (int)MODE_RIGHTRESIZED) ? defaultWidth / 2 : defaultWidth;
-	_rHeight = (mode == (int)MODE_RIGHTRESIZED) ? defaultHeight / 2 : defaultHeight;
+	_lWidth = (mode == (int)MODE_LEFTRESIZED) ? defaultWidth / resizeFactor : defaultWidth;
+	_lHeight = (mode == (int)MODE_LEFTRESIZED) ? defaultHeight / resizeFactor : defaultHeight;
+	_rWidth = (mode == (int)MODE_RIGHTRESIZED) ? defaultWidth / resizeFactor : defaultWidth;
+	_rHeight = (mode == (int)MODE_RIGHTRESIZED) ? defaultHeight / resizeFactor : defaultHeight;
 }
 
 MultiH264Encoder::~MultiH264Encoder()
@@ -135,7 +135,7 @@ void MultiH264Encoder::blur(uint8_t** lframePlanes, int* lframePlaneSizes, int l
 
 
 	cv::Mat dst;
-	cv::GaussianBlur( src, dst, cv::Size( 5, 5 ), 0, 0 );
+	cv::GaussianBlur( src, dst, cv::Size( _sizeX, _sizeX), _stdX, _stdY );
 	
 	frame2->data[0] = dst.data;
 
@@ -179,7 +179,7 @@ void MultiH264Encoder::resize(uint8_t** lframePlanes, int* lframePlaneSizes, int
 	// Make it free afterwards...
 	SwsContext *swsctx = sws_getContext(_width, _height,
                       PIX_FMT_YUV420P,
-                      _width / 2, _height / 2,
+                      _width / _resizeFactor, _height / _resizeFactor,
                       PIX_FMT_YUV420P,
                       0, 0, 0, 0);
 

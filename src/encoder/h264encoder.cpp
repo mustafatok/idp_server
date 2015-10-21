@@ -164,7 +164,11 @@ void H264Encoder::onFrameReceived(int id, uint8_t** framePlanes, int* framePlane
 
         int64_t et = 0;
         _timer.remember();
+#if X264_BUILD == 60
+        int frame_size = x264_encoder_encode(_encoder, &_nalFrameUnits, &_nalFrameCount, &_inputPicture, &_outputPicture, _bitRate * 1000 / _fps);
+#else
         int frame_size = x264_encoder_encode(_encoder, &_nalFrameUnits, &_nalFrameCount, &_inputPicture, &_outputPicture);
+#endif
         et = _timer.diff_ys();
 
 #if X264_BUILD >= 76

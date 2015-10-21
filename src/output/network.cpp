@@ -169,4 +169,5 @@ void UdpSocket::initClientParameters(int32_t mode, int32_t lWidth, int32_t lHeig
 	*(tmp + 3) = rWidth;
 	*(tmp + 4) = rHeight;
 	this->send(PROTOCOL_TYPE_CLIENT_INIT, &(data[0]), size);
+	delete[] data;
 }

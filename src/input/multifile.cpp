@@ -73,6 +73,7 @@ void MultiFileInput::stop() {
 			_mThread->join();
 			delete _mThread;
 			cout << "MJOIN" << endl;
+			cv.notify_all();
 
 		}
 		Input::stop();
@@ -81,6 +82,7 @@ void MultiFileInput::stop() {
 			_lThread->join();
 			delete _lThread;
 			cout << "LJOIN" << endl;
+			cv.notify_all();
 
 		}
 		Input::stop();
@@ -89,6 +91,8 @@ void MultiFileInput::stop() {
 			_rThread->join();
 			delete _rThread;
 			cout << "RJOIN" << endl;
+			cv.notify_all();
+
 
 		}
 		_mThread = _rThread = _lThread = nullptr;

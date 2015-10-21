@@ -14,7 +14,7 @@ extern "C" {
 
 class MultiH264Encoder : public Encoder, public InputObserver, public EncoderObserver {
 public:
-	explicit MultiH264Encoder(int mode, int defaultWidth, int defaultHeight);
+	explicit MultiH264Encoder(int mode, int defaultWidth, int defaultHeight, int resizeFactor);
 	virtual ~MultiH264Encoder();
     void stop();
 	
@@ -39,6 +39,14 @@ public:
     	_encoders[0].setFps(fps);
     	_encoders[1].setFps(fps);
     }
+    virtual void setBlurParams(int sizeX, int stdX, int stdY){
+        _sizeX = sizeX;
+        _stdX = stdX;
+        _stdY = stdY;
+    }
+    virtual void setResizeFactor(int resizeFactor){
+        _resizeFactor = resizeFactor;
+    }
 protected:
 	void verticalConcat(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes);
 	void interleaving(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes);
@@ -50,6 +58,9 @@ protected:
 	uint8_t _lType; uint8_t* _lData; int _lSize;
 	uint8_t _rType; uint8_t* _rData; int _rSize;
 	int _tmpCnt = 0;
+
+    int _sizeX; int _stdX; int _stdY;
+    int _resizeFactor;
 private:
 	H264Encoder _encoders[2];
 	int _mode;

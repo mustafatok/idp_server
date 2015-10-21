@@ -1,6 +1,9 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+#include <vector>
+#include <string>
+#include <sstream>
 
 #include "input/input.h"
 #include "input/camera.h"
@@ -55,59 +58,61 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	int prevMode = -1;
+	int prevResizeFactor = -1;
 	string input;
 	for(;;) {
-		cout << "1 - MODE_BEST" << endl                    
-			 <<	"2 - MODE_VERTICALCONCAT - 2000" << endl
-			 <<	"3 - MODE_LEFTRESIZED - 200 - 800" << endl
-			 <<	"4 - MODE_RIGHTRESIZED - 800 - 200" << endl
-			 <<	"5 - MODE_LEFTBLURRED - 400 - 600" << endl
-			 <<	"6 - MODE_RIGHTBLURRED - 600 - 400" << endl
-			 <<	"7 - MODE_INTERLEAVING - 2000 - 2000" << endl;
-
-		 
 		cin >> input;
+
 		if (input == "exit") {
 				break;
 		}
-		int lbitRate = 5000;
-		int rbitRate = 5000;
 
-		if (input == "1") {
-			mode = (int) MODE_VERTICALCONCAT;
-			cout << "MODE_BEST - 5000" << endl;
-		}else if (input == "2") {
-			cout << "MODE_VERTICALCONCAT - 2000" << endl;
-			mode = (int) MODE_VERTICALCONCAT;
-			lbitRate = 2000;
-		}else if (input == "3") {
-			cout << "MODE_LEFTRESIZED - 200 - 800" << endl;
-			mode = (int) MODE_LEFTRESIZED;
-			lbitRate = 200;
-			rbitRate = 800;
-		}else if (input == "4") {
-			cout << "MODE_RIGHTRESIZED - 800 - 200" << endl;
-			mode = (int) MODE_RIGHTRESIZED;
-			lbitRate = 800;
-			rbitRate = 200;
-		}else if (input == "5") {
-			cout << "MODE_LEFTBLURRED - 400 - 600" << endl;
-			mode = (int) MODE_LEFTBLURRED;
-			lbitRate = 400;
-			rbitRate = 600;
-		}else if (input == "6") {
-			cout << "MODE_RIGHTBLURRED - 600 - 400" << endl;
-			mode = (int) MODE_RIGHTBLURRED;
-			lbitRate = 600;
-			rbitRate = 400;
-		}else if (input == "7") {
-			cout << "MODE_INTERLEAVING - 2000 - 2000" << endl;
-			mode = (int) MODE_INTERLEAVING;
-			lbitRate = 2000;
-			rbitRate = 2000;
+		std::cout << input << std::endl;
+		std::stringstream ss(input);
+		std::string item;
+		std::vector<std::string> elems;
+		while (std::getline(ss, item, ';')) {
+		    elems.push_back(item);
 		}
-		if(mode == -1) continue;
+		if(elems.size() != 6)
+			continue;
+		
+		int inputMode = stoi(elems[0]);
+		int rbitRate = stoi(elems[1]);
+		int lbitRate = 1000 - rbitRate;
+		int resizeFactor = stoi(elems[2]);
+		int blurSizeX = stoi(elems[3]);
+		int stdX = stoi(elems[4]);
+		int stdY = stoi(elems[5]);
+		
+		if(inputMode == prevMode && encoder != nullptr){
+			encoder->setBitRate(lbitRate, rbitRate);
+			encoder->setResizeFactor(resizeFactor);
+			encoder->setBlurParams(blurSizeX, stdX, stdY);
+			if(prevResizeFactor == resizeFactor)
+				continue;
+			else
+				prevResizeFactor = resizeFactor;
+		}
+		if (inputMode == 1) {
+			mode = (int) MODE_VERTICALCONCAT;
+			cout << "MODE_BEST - 1000" << endl;
+		}else if (inputMode == 2) {
+			cout << "MODE_LEFTRESIZED - " << lbitRate << " - "  << rbitRate << endl;
+			mode = (int) MODE_LEFTRESIZED;
+		}else if (inputMode == 3) {
+			cout << "MODE_RIGHTRESIZED - " << lbitRate << " - "  << rbitRate  << endl;
+			mode = (int) MODE_RIGHTRESIZED;
+		}else if (inputMode == 4) {
+			cout << "MODE_LEFTBLURRED - " << lbitRate << " - "  << rbitRate  << endl;
+			mode = (int) MODE_LEFTBLURRED;
+		}else if (inputMode == 5) {
+			cout << "MODE_RIGHTBLURRED - " << lbitRate << " - "  << rbitRate  << endl;
+			mode = (int) MODE_RIGHTBLURRED;
+		}
 
+		prevMode = inputMode;
 		bool flag = false;
 		if(encoder == nullptr){
 			output.setConnectionCallback(onNewConnection);
@@ -136,14 +141,16 @@ int main(int argc, char* argv[])
 		}
 
 		if(videoInput->type() == "camera"){
-			encoder = new MultiH264Encoder(mode, 960, 544);
+			encoder = new MultiH264Encoder(mode, 960, 544, resizeFactor);
 			encoder->setFps(25);
 		}else{
-			encoder = new MultiH264Encoder(mode, 960, 544);
+			encoder = new MultiH264Encoder(mode, 960, 544, resizeFactor);
 			encoder->setFps(25);
 		}
 		
 		encoder->setBitRate(lbitRate, rbitRate);
+		encoder->setResizeFactor(resizeFactor);
+		encoder->setBlurParams(blurSizeX, stdX, stdY);
 		encoder->setEncoderObserver(0, &output);
 		videoInput->setInputObserver(0, encoder);
 
