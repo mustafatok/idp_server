@@ -143,6 +143,8 @@ void MultiFileInput::setRightSize(int width, int height)
 }
 
 void MultiFileInput::pushLeftFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes){
+    // cout << " PL " << endl;
+
 	if(stopped) return;
 
 	_lFramePlanes = framePlanes;
@@ -158,9 +160,13 @@ void MultiFileInput::pushLeftFrame(uint8_t** framePlanes, int* framePlaneSizes, 
 
 	if(_type == "file")
 		usleep(40 * 1000);
+    // cout << " PLE " << endl;
+
 
 }
 void MultiFileInput::pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes, int planes){
+    // cout << " PR " << endl;
+
 	if(stopped) return;
 	
 	_rFramePlanes = framePlanes;
@@ -176,6 +182,8 @@ void MultiFileInput::pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes,
 
 	if(_type == "file")
 		usleep(40 * 1000);
+    // cout << " PRE " << endl;
+
 
 }
 

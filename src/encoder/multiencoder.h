@@ -48,7 +48,8 @@ public:
         _resizeFactor = resizeFactor;
     }
 protected:
-	void verticalConcat(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes);
+    void verticalConcat(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes);
+	void singleFrame(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes);
 	void interleaving(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes);
 	void blur(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, bool lBlur, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes, bool rBlur);
 	void resize(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, bool lResize, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes, bool rResize);
@@ -58,6 +59,10 @@ protected:
 	uint8_t _lType; uint8_t* _lData; int _lSize;
 	uint8_t _rType; uint8_t* _rData; int _rSize;
 	int _tmpCnt = 0;
+    int _lFrameCounter = 0; int _rFrameCounter = 0;
+    long _lSizeCounter = 0; long _rSizeCounter = 0;
+    Timer timer;
+    Timer timer1;
 
     int _sizeX; int _stdX; int _stdY;
     int _resizeFactor;

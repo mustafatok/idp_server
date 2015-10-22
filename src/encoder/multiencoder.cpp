@@ -59,6 +59,8 @@ void MultiH264Encoder::onFrameReceived(int id, uint8_t** lframePlanes, int* lfra
 		this->blur(lframePlanes, lframePlaneSizes, lplanes, false, rframePlanes,  rframePlaneSizes, rplanes, true);
 	}else if(_mode == (int) MODE_INTERLEAVING){
 		this->interleaving(lframePlanes, lframePlaneSizes, lplanes, rframePlanes,  rframePlaneSizes, rplanes);
+	}else if(_mode == (int) MODE_SINGLE){
+		this->singleFrame(lframePlanes, lframePlaneSizes, lplanes);
 	}
 }
 
@@ -89,6 +91,9 @@ void MultiH264Encoder::verticalConcat(uint8_t** lframePlanes, int* lframePlaneSi
 
 	// TODO CLEANUP MEMORY LEAKS
 	av_freep(&tFramePlanes[0]);
+}
+void MultiH264Encoder::singleFrame(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes){
+	_encoders[0].onFrameReceived(0, lframePlanes, lframePlaneSizes, lplanes);
 }
 void MultiH264Encoder::interleaving(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes){
 	
@@ -216,17 +221,42 @@ void MultiH264Encoder::onEncodedDataReceived(int id, uint8_t type, uint8_t* data
 	if(_mode == (int) MODE_VERTICALCONCAT){
 		_observer->onEncodedDataReceived(_id, type, data, size);
 		return;
+	}else if(_mode == (int) MODE_SINGLE){
+		_observer->onEncodedDataReceived(_id, type, data, size);
+		return;
 	}
 	if(id == LEFT){
 		_lType = type;
 		_lData = data;
 		_lSize = size;
+
+		_lSizeCounter += size;
+		if((++_lFrameCounter) == _encoders[0].fps()){
+			cout << timer.diff_ms() << " ";
+			cout << _encoders[0].fps() << " - " << (_lSizeCounter * 8 / 1000);
+			_lSizeCounter = 0;
+			_lFrameCounter = 0;
+			timer.remember();
+		}
+
 		// std::cout << "leftSize : "<< _lSize << std::endl;
+		// std::cout <<  _lSize;
 	}else if(id == RIGHT){
 		_rType = type;
 		_rData = data;
 		_rSize = size;
+
+		_rSizeCounter += size;
+		if((++_rFrameCounter) == _encoders[1].fps()){
+			cout << " : " << timer1.diff_ms() << " " << _encoders[1].fps() << " - " << (_rSizeCounter * 8 / 1000) << endl;
+			_rSizeCounter = 0;
+			_rFrameCounter = 0;
+			timer1.diff_ms();
+		}
+
+
 		// std::cout << "rightSize : "<< _rSize << std::endl;
+		// std::cout << " : "<< _rSize << std::endl;
 	}
 	if((++_tmpCnt) == 2){
 		if(_mode == (int) MODE_INTERLEAVING){
@@ -284,6 +314,8 @@ void MultiH264Encoder::onSizeChanged(int id, int width, int height) {
 	Encoder::setSize(width, height);
 	if(_mode == (int) MODE_VERTICALCONCAT){
 		_encoders[0].onSizeChanged(id, width, height*2);
+	}else if(_mode == (int) MODE_SINGLE){
+		_encoders[0].onSizeChanged(id, width, height);
 	}else{
 		if(_mode == (int) MODE_LEFTRESIZED){
 			id == LEFT ? _encoders[0].onSizeChanged(id, width / 2, height / 2) : _encoders[1].onSizeChanged(id, width, height);

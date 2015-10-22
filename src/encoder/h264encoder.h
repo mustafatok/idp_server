@@ -3,6 +3,9 @@
 
 #include <functional>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <iostream>
 #include "encoder.h"
 #include "../observer/inputobserver.h"
 
@@ -30,11 +33,37 @@ public:
 
 		virtual void setBitRate(int bitRate){
 			_bitRate = bitRate;
+        	_parameters.rc.i_bitrate = bitRate; // 10kb
+
+			if(_encoder != nullptr) {
+        		//_encoder = x264_encoder_open(&_parameters);
+
+
+				std::cout << " Reconfig " << std::endl;
+				// x264_t* tmp = _encoder;
+				
+				x264_param_t* tmpparam = new x264_param_t();
+        		memcpy(tmpparam, &_parameters, sizeof(x264_param_t));
+
+        		x264_t* encoder1 = x264_encoder_open(tmpparam);
+        		// TODO : FREE
+        		_encoder = encoder1;
+
+				// x264_encoder_encode(tmp, &_nalFrameUnits, &a, nullptr, &op);
+        		// x264_encoder_close(tmp);
+        		// free(tmp);
+
+			}
 		}
 
 		virtual void setFps(int fps){
 			this->_fps = fps;
 		}
+		
+		int fps(){
+			return this->_fps;
+		}
+
 
 
 private:
@@ -57,7 +86,7 @@ private:
 		int64_t frameCount = 0;
 		int64_t encodeCount = 0;
 
-		int _bitRate = 10000, _fps = 25;
+		int _bitRate = 1000, _fps = 25;
 
 #if X264_BUILD < 76
 #define	DATA_SIZE 1000000 // 1MB - if client crashes it might be because old x264 versions (older than 17 Sep 2009)

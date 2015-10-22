@@ -77,9 +77,13 @@ void H264Encoder::init()
         _parameters.analyse.i_subpel_refine = 1;
         _parameters.b_pre_scenecut = 1;
         _parameters.b_deblocking_filter = 1; 
+        _parameters.i_keyint_min = 50; 
+
+        x264_param_t* tmpparam = new x264_param_t();
+        memcpy(tmpparam, &_parameters, sizeof(x264_param_t));
 
         x264_picture_alloc(&_inputPicture, X264_CSP_I420, _width, _height);
-        _encoder = x264_encoder_open(&_parameters);
+        _encoder = x264_encoder_open(tmpparam);
 #else
         x264_param_default_preset(&_parameters, "ultrafast", "zerolatency,fastdecode");
         x264_param_apply_fastfirstpass(&_parameters);
@@ -164,11 +168,16 @@ void H264Encoder::onFrameReceived(int id, uint8_t** framePlanes, int* framePlane
 
         int64_t et = 0;
         _timer.remember();
+
+        // cout << _id << "E - " << endl;
 #if X264_BUILD == 60
         int frame_size = x264_encoder_encode(_encoder, &_nalFrameUnits, &_nalFrameCount, &_inputPicture, &_outputPicture, _bitRate * 1000 / _fps);
 #else
         int frame_size = x264_encoder_encode(_encoder, &_nalFrameUnits, &_nalFrameCount, &_inputPicture, &_outputPicture);
-#endif
+#endif  
+        // cout << _id << "E ! " << endl;
+
+
         et = _timer.diff_ys();
 
 #if X264_BUILD >= 76
@@ -203,6 +212,7 @@ void H264Encoder::onFrameReceived(int id, uint8_t** framePlanes, int* framePlane
                         return;
                     }
                 }
+                // cout << "_nalFrameCount " << _nalFrameCount << "frame_size " << frame_size << "datasize " << datasize << endl;
 #ifdef ANALYZER
         qa.decode_and_compare(framePlanes, framePlaneSizes, data, datasize);
 #endif

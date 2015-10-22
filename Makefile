@@ -10,12 +10,13 @@ OBJS	= build/stage/lib/libaravis-0.4.a build/stage/lib/libx264.a build/stage/lib
           build/stage/lib/libswscale.a build/stage/lib/libavformat.a
 
 ARAVIS_SRC = git://git.gnome.org/aravis
-ARAVIS_VER = 3bc7e90
 
 # choose x264 version, 
 # 0: original x264 rate control, 
 # 1: Rho domain RC from Fan Zhang,
-X264RC=0
+# 2: Rho domain RC from Fan Zhang adaptive,
+# 3: Rho domain RC 
+X264RC=1
 
 X264_SRC   = git://git.videolan.org/x264.git
 X264_VER   = a5831aa		# newest version on May, 22nd 2014
@@ -48,12 +49,10 @@ libs:
 	mkdir -p build/src
 	# aravis
 	if [ ! -f build/src/aravis/autogen.sh ]; then \
-		cd build/src/ && git clone $(ARAVIS_SRC) && cd aravis && git checkout $(ARAVIS_VER); \
+		cd build/src/ && git clone $(ARAVIS_SRC) && cd aravis; \
 	fi
 	if [ ! -f build/stage/lib/libaravis-0.4.a ]; then \
 		cd build/src/aravis/ && ./autogen.sh --prefix=`pwd`/../../stage/ && \
-		   patch -p1 -i ../../../aravis_fake_rgb_support.patch && \
-		   patch -p1 -i ../../../aravis_timestamp_feature.patch && \
 		   make && make install; \
 	fi
 	# ffmpeg
@@ -72,6 +71,12 @@ libs:
 	fi
 	if [ $(X264RC) -eq 1 ]; then \
 		cd build/src/x264_rho_min/ && ./configure --prefix=`pwd`/../../stage/ $(X264_FLAGS) && make && make install; \
+	fi
+	if [ $(X264RC) -eq 2 ]; then \
+		cd build/src/x264_rho_min_Ch_adaptive/ && ./configure --prefix=`pwd`/../../stage/ $(X264_FLAGS) && make && make install; \
+	fi
+	if [ $(X264RC) -eq 3 ]; then \
+		cd build/src/RC_Intraframe_CSVT2009/ && ./configure --prefix=`pwd`/../../stage/ $(X264_FLAGS) && make && make install; \
 	fi
 
 libs_clean:

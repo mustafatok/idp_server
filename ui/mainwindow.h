@@ -31,9 +31,14 @@ private slots:
 
     void on_radioButtonRightB_clicked(bool checked);
 
+    void on_horizontalSlider_sliderPressed();
+
+    void on_radioButtonSingle_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
     void serializeAndWrite();
+    bool sliderPressed = false;
 };
 
 #endif // MAINWINDOW_H

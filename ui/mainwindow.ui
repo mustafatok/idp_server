@@ -23,10 +23,10 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>50</x>
+      <x>40</x>
       <y>20</y>
-      <width>568</width>
-      <height>172</height>
+      <width>561</width>
+      <height>162</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -38,7 +38,7 @@
        <item>
         <widget class="QLabel" name="labelLeft">
          <property name="text">
-          <string>500</string>
+          <string>1000</string>
          </property>
         </widget>
        </item>
@@ -48,10 +48,10 @@
           <bool>false</bool>
          </property>
          <property name="minimum">
-          <number>50</number>
+          <number>0</number>
          </property>
          <property name="maximum">
-          <number>950</number>
+          <number>1000</number>
          </property>
          <property name="singleStep">
           <number>50</number>
@@ -60,7 +60,10 @@
           <number>50</number>
          </property>
          <property name="value">
-          <number>500</number>
+          <number>0</number>
+         </property>
+         <property name="sliderPosition">
+          <number>0</number>
          </property>
          <property name="tracking">
           <bool>true</bool>
@@ -76,7 +79,7 @@
        <item>
         <widget class="QLabel" name="labelRight">
          <property name="text">
-          <string>500</string>
+          <string>0</string>
          </property>
         </widget>
        </item>
@@ -85,7 +88,7 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_10">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
           <widget class="QRadioButton" name="radioButtonFull">
            <property name="toolTip">
@@ -96,6 +99,22 @@
            </property>
            <property name="checked">
             <bool>true</bool>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">modeButtonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButtonSingle">
+           <property name="toolTip">
+            <string>6</string>
+           </property>
+           <property name="text">
+            <string>Single</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
            </property>
            <attribute name="buttonGroup">
             <string notr="true">modeButtonGroup</string>
@@ -334,7 +353,7 @@
      <x>0</x>
      <y>0</y>
      <width>650</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>
@@ -362,11 +381,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>572</x>
-     <y>187</y>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
-     <x>613</x>
-     <y>187</y>
+     <x>719</x>
+     <y>177</y>
     </hint>
    </hints>
   </connection>
@@ -378,7 +397,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>572</x>
-     <y>187</y>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
      <x>497</x>
@@ -394,7 +413,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>459</x>
-     <y>221</y>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>541</x>
@@ -409,8 +428,8 @@
    <slot>buttonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>612</x>
-     <y>221</y>
+     <x>665</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>625</x>
@@ -426,7 +445,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>287</x>
-     <y>217</y>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
      <x>282</x>
@@ -442,7 +461,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>198</x>
-     <y>210</y>
+     <y>200</y>
     </hint>
     <hint type="destinationlabel">
      <x>171</x>

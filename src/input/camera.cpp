@@ -65,7 +65,7 @@ void CameraInput::operator()()
 #if X264_BUILD < 100
 	arv_camera_set_frame_rate(camera, 25);
 #else
-	arv_camera_set_frame_rate(camera, 50);
+	arv_camera_set_frame_rate(camera, 25);
 #endif
 	arv_camera_set_pixel_format(camera, ARV_PIXEL_FORMAT_YUV_422_PACKED);
 
@@ -120,17 +120,31 @@ void CameraInput::operator()()
 
 
 	while (!stopped) {
+		// cout << _id << " - R - 1 " << endl;
 
-		buffer = arv_stream_pop_buffer(stream);
+		buffer = arv_stream_timeout_pop_buffer(stream, 1000000);
+		// cout << _id << " - R - 2 " << endl;
+
 
 		if (buffer == nullptr) {
+			cout << _id << " AQ " << endl;
+
+			arv_camera_stop_acquisition (camera);
+			arv_camera_start_acquisition(camera);
+
 			continue;
 		}
 
-		if (buffer->status == ARV_BUFFER_STATUS_SUCCESS) { // the buffer contains a valid image
-			inputPlanes[0] = reinterpret_cast<uint8_t*>(buffer->data);
+		if (arv_buffer_get_status(buffer) == ARV_BUFFER_STATUS_SUCCESS) { // the buffer contains a valid image
+			size_t size;
+			inputPlanes[0] = (uint8_t*) arv_buffer_get_data(buffer, &size);
 			sws_scale(swsContext, static_cast<uint8_t**>(inputPlanes), inputRowSizes, 0, HEIGHT, static_cast<uint8_t**>(outputPlanes), outputRowSizes);
 			_observer->onFrameReceived(_id, outputPlanes, outputRowSizes, 3);
+			// cout << _id << " - R - 3 " << endl;
+
+		}else{
+			// cout << _id << " - R - 4 " << endl;
+
 		}
 		arv_stream_push_buffer(stream, buffer);
 

@@ -110,6 +110,9 @@ int main(int argc, char* argv[])
 		}else if (inputMode == 5) {
 			cout << "MODE_RIGHTBLURRED - " << lbitRate << " - "  << rbitRate  << endl;
 			mode = (int) MODE_RIGHTBLURRED;
+		}else if (inputMode == 6) {
+			cout << "MODE_SINGLE - " << lbitRate << " - "  << rbitRate  << endl;
+			mode = (int) MODE_SINGLE;
 		}
 
 		prevMode = inputMode;
