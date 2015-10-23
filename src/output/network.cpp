@@ -113,6 +113,15 @@ void UdpSocket::operator()(){
 				} else if (result + payloadPosition == payloadSize) {
 						cerr << "Reading payload succeeded, size: " << result << endl;
 						payloadPosition = 0;
+
+						if (payloadType == PROTOCOL_TYPE_BINING) {
+							cout << "PROTOCOL_TYPE_BINING" << endl;
+							int32_t* tmp = reinterpret_cast<int32_t*>(payload);
+
+							inputPositionsCallback(tmp[0], tmp[1]);
+							delete[] tmp;
+						}
+
 				} else {
 						payloadPosition += result;
 						continue;
@@ -120,7 +129,7 @@ void UdpSocket::operator()(){
 			} else if (payloadType == PROTOCOL_TYPE_INIT) {
 				cout << "PROTOCOL_TYPE_INIT" << endl;
 				remoteAddress = incomming;
-				remoteAddress.sin_port = htons(7070);
+				// remoteAddress.sin_port = htons(7070);
 				connectionCallback(&incomming, inlen);
 			} else if (payloadType == PROTOCOL_TYPE_CLOSE) {
 				closeConnectionCallback(&incomming, inlen);

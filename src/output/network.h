@@ -34,7 +34,6 @@ public:
 	void close();
 	void send(uint8_t* data, int size);
 	void send(uint8_t type, uint8_t* data, int size);
-
 	virtual void onEncodedDataReceived(int id, uint8_t type, uint8_t* data, int size){
 		this->send(type, data, size);
 	}
@@ -64,6 +63,10 @@ public:
 	{
 		closeConnectionCallback = callback;
 	}
+	void setInputPositionsCallback(void (*callback)(int, int))
+	{
+		inputPositionsCallback = callback;
+	}
 
 	template <typename ObjectType>
 	void setCloseConnectionCallback(ObjectType *instance, void (ObjectType::*callback)(struct sockaddr_in*, int))
@@ -82,6 +85,7 @@ private:
 	std::function<void (uint8_t, uint8_t*, int)> readCallback;
 	std::function<void (struct sockaddr_in*, int)> connectionCallback;
 	std::function<void (struct sockaddr_in*, int)> closeConnectionCallback;
+	std::function<void (int, int)>  inputPositionsCallback;
 
 	bool headerValid = false;
 	uint8_t payloadType = 0;

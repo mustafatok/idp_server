@@ -15,7 +15,8 @@ ARAVIS_SRC = git://git.gnome.org/aravis
 # 0: original x264 rate control, 
 # 1: Rho domain RC from Fan Zhang,
 # 2: Rho domain RC from Fan Zhang adaptive,
-# 3: Rho domain RC 
+# 3: Rho domain RC RC_Intraframe_CSVT2009
+# 4: Rho domain RC Fun Original
 X264RC=1
 
 X264_SRC   = git://git.videolan.org/x264.git
@@ -77,6 +78,9 @@ libs:
 	fi
 	if [ $(X264RC) -eq 3 ]; then \
 		cd build/src/RC_Intraframe_CSVT2009/ && ./configure --prefix=`pwd`/../../stage/ $(X264_FLAGS) && make && make install; \
+	fi
+	if [ $(X264RC) -eq 4 ]; then \
+		cd build/src/x264_branch_rho_main/ && ./configure --prefix=`pwd`/../../stage/ $(X264_FLAGS) && make && make install; \
 	fi
 
 libs_clean:

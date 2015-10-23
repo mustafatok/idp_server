@@ -24,8 +24,14 @@ UdpSocket output;
 int mode = -1;
 thread *encoderThread = nullptr;
 
+void inputPositionsCallback(int x, int y){
+	if(videoInput != nullptr)
+		videoInput->setInputPositions(x, y);
+}
+
 void init(){
 	output.initClientParameters(mode, encoder->lWidth(), encoder->lHeight(), encoder->rWidth(), encoder->rHeight());
+	output.setInputPositionsCallback(&inputPositionsCallback);
 	if (encoderThread == nullptr) {
 		encoderThread = new thread([&](){
 			(*videoInput)();

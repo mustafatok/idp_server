@@ -51,6 +51,13 @@ public:
 		_fileInputR->start();
 		stopped = false;
 	}
+	virtual void setInputPositions(int x, int y){
+		if(x < 0 || y < 0) return;
+		if(x + WIDTH > SENSORWIDTH || y + HEIGHT > SENSORHEIGHT) return;
+
+        _fileInputL->setInputPositions(x, y);
+        _fileInputR->setInputPositions(x, y);
+	}
 
 	std::string type(){return _type;}
 private:

@@ -18,11 +18,6 @@ extern "C" {
 
 using namespace std;
 
-const int WIDTH = 960;
-const int HEIGHT = 544;
-const int SENSORWIDTH = 2048;
-const int SENSORHEIGHT = 1088;
-
 std::mutex mtxRead;
 uint cntRead = 0;
 
@@ -32,6 +27,8 @@ uint cntRead = 0;
 CameraInput::CameraInput(std::string inputCamera) : Input()
 {
 	cam_id = inputCamera;
+	_xbinning = (SENSORWIDTH-WIDTH)/2;
+	_ybinning = (SENSORHEIGHT-HEIGHT)/2;
 }
 CameraInput::CameraInput() : Input()
 {
@@ -58,8 +55,7 @@ void CameraInput::operator()()
 		return;
 	}
 	cout << cam_id << " " << camera << endl;
-	arv_camera_set_region(camera, XBINNING, YBINNING, WIDTH, HEIGHT);
-	arv_camera_set_binning (camera, XBINNING, YBINNING);
+	arv_camera_set_region(camera, _xbinning, _ybinning, WIDTH, HEIGHT);
 	_observer->onColorSpaceChanged(_id, PIX_FMT_YUV420P);
 	_observer->onSizeChanged(_id, WIDTH, HEIGHT);
 #if X264_BUILD < 100
@@ -118,7 +114,6 @@ void CameraInput::operator()()
 
 	arv_camera_start_acquisition(camera);
 
-
 	while (!stopped) {
 		// cout << _id << " - R - 1 " << endl;
 
@@ -147,7 +142,6 @@ void CameraInput::operator()()
 
 		}
 		arv_stream_push_buffer(stream, buffer);
-
 	}
 
 	arv_camera_stop_acquisition (camera);
