@@ -18,11 +18,15 @@ public:
         virtual ~CameraInput();
 
         void operator()();
-        void setInputPositions(int x, int y){
-        	_xbinning = x;
-        	_ybinning = y;
+        void setInputOffset(int x, int y){
+        	_xbinning = (SENSORWIDTH-WIDTH)/2 + x;
+        	_ybinning = (SENSORHEIGHT-HEIGHT)/2 + y;
 			arv_camera_set_region(camera, _xbinning, _ybinning, WIDTH, HEIGHT);
 
+        }
+        void setInputOffsetX(int x){
+                _xbinning = (SENSORWIDTH-WIDTH)/2 + x;
+                arv_camera_set_region(camera, _xbinning, _ybinning, WIDTH, HEIGHT);
         }
 
 private:

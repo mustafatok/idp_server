@@ -63,9 +63,14 @@ public:
 	{
 		closeConnectionCallback = callback;
 	}
-	void setInputPositionsCallback(void (*callback)(int, int))
+	void setInputCallback(void (*callback)(int, int))
 	{
-		inputPositionsCallback = callback;
+		inputCallback = callback;
+	}
+
+	void setPositionCallback(void (*callback)(float, float, float))
+	{
+		positionCallback = callback;
 	}
 
 	template <typename ObjectType>
@@ -85,7 +90,8 @@ private:
 	std::function<void (uint8_t, uint8_t*, int)> readCallback;
 	std::function<void (struct sockaddr_in*, int)> connectionCallback;
 	std::function<void (struct sockaddr_in*, int)> closeConnectionCallback;
-	std::function<void (int, int)>  inputPositionsCallback;
+	std::function<void (int, int)>  inputCallback;
+	std::function<void (float, float, float)>  positionCallback;
 
 	bool headerValid = false;
 	uint8_t payloadType = 0;

@@ -51,12 +51,16 @@ public:
 		_fileInputR->start();
 		stopped = false;
 	}
-	virtual void setInputPositions(int x, int y){
+	virtual void setInputOffset(int x, int y){
 		if(x < 0 || y < 0) return;
 		if(x + WIDTH > SENSORWIDTH || y + HEIGHT > SENSORHEIGHT) return;
 
-        _fileInputL->setInputPositions(x, y);
-        _fileInputR->setInputPositions(x, y);
+        _fileInputL->setInputOffset(x, y);
+        _fileInputR->setInputOffset(x, y);
+	}
+	virtual void setInputOffsetX(int x1, int x2){
+        _fileInputL->setInputOffsetX(x1);
+        _fileInputR->setInputOffsetX(x2);
 	}
 
 	std::string type(){return _type;}

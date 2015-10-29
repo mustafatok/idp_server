@@ -35,6 +35,18 @@ private slots:
 
     void on_radioButtonSingle_clicked(bool checked);
 
+    void on_rightSlider_sliderPressed();
+
+    void on_rightSlider_sliderReleased();
+
+    void on_leftSlider_sliderPressed();
+
+    void on_leftSlider_sliderReleased();
+
+    void on_leftSlider_valueChanged(int value);
+
+    void on_rightSlider_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
     void serializeAndWrite();

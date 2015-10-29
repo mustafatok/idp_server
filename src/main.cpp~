@@ -31,14 +31,14 @@ void inputCallback(int x, int y){
 }
 
 void positionCallback(float x, float y, float z){
-	// //std::cout << x << " " << y << " " << z << std::endl;
-	// double _x; double _y; double _z;
-	// drdGetPos (&_x, &_y, &_z, false);
-	// //std::cout << _x << " " << _y << " " << _z << std::endl;
+	//std::cout << x << " " << y << " " << z << std::endl;
+	double _x; double _y; double _z;
+	drdGetPos (&_x, &_y, &_z, false);
+	//std::cout << _x << " " << _y << " " << _z << std::endl;
 
-	// if(!drdIsMoving ())drdMoveToPos (_x - y, _y - x, _z + z, false);
-	// // drdMoveToPos (_x + x, _y + y, _z + z, false);
-	// //std::cout << _x - x << " " << _y - y << " " << _z - z << std::endl;
+	if(!drdIsMoving ())drdMoveToPos (_x - y, _y - x, _z + z, false);
+	// drdMoveToPos (_x + x, _y + y, _z + z, false);
+	//std::cout << _x - x << " " << _y - y << " " << _z - z << std::endl;
 }
 
 void init(){
@@ -92,7 +92,7 @@ bool initDevice(){
 }
 int main(int argc, char* argv[])
 {
-	// initDevice();
+	initDevice();
 	bool camera = false;
 	for(int i = 1; i < argc; ++i) {
 		std::string value(argv[i]);
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 		while (std::getline(ss, item, ';')) {
 		    elems.push_back(item);
 		}
-		if(elems.size() != 8)
+		if(elems.size() != 6)
 			continue;
 		
 		int inputMode = stoi(elems[0]);
@@ -128,14 +128,11 @@ int main(int argc, char* argv[])
 		int blurSizeX = stoi(elems[3]);
 		int stdX = stoi(elems[4]);
 		int stdY = stoi(elems[5]);
-		int leftX = stoi(elems[6]);
-		int rightX = stoi(elems[7]);
 		
 		if(inputMode == prevMode && encoder != nullptr){
 			encoder->setBitRate(lbitRate, rbitRate);
 			encoder->setResizeFactor(resizeFactor);
 			encoder->setBlurParams(blurSizeX, stdX, stdY);
-			videoInput->setInputOffsetX(leftX, rightX);
 			if(prevResizeFactor == resizeFactor)
 				continue;
 			else
@@ -186,9 +183,8 @@ int main(int argc, char* argv[])
 		if(camera){
 			videoInput = new MultiFileInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642");
 		}else{
-			videoInput = new MultiFileInput("file", "/home/mustafa/Downloads/LEFT.avi", "/home/mustafa/Downloads/RIGHT.avi");
+			videoInput = new MultiFileInput("file", "/LEFT.mp4", "/RIGHT.mp4");
 		}
-		//videoInput->setInputOffsetX(leftX, rightX);
 
 		if(videoInput->type() == "camera"){
 			encoder = new MultiH264Encoder(mode, 960, 544, resizeFactor);

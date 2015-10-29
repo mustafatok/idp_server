@@ -24,7 +24,9 @@ public:
         }
         virtual void stop() { stopped = true; }
         virtual void start() { stopped = false; }
-        virtual void setInputPositions(int x, int y){}
+        virtual void setInputOffset(int x, int y){}
+        virtual void setInputOffsetX(int x1, int x2){}
+        virtual void setInputOffsetX(int x){}
 
 };
 

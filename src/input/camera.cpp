@@ -124,7 +124,7 @@ void CameraInput::operator()()
 		if (buffer == nullptr) {
 			cout << _id << " AQ " << endl;
 
-			arv_camera_stop_acquisition (camera);
+			arv_camera_stop_acquisition(camera);
 			arv_camera_start_acquisition(camera);
 
 			continue;

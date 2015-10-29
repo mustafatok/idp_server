@@ -111,14 +111,20 @@ void UdpSocket::operator()(){
 						cerr << "Reading payload failed! " << strerror(errno)<< ", recvsize: "<< result  << endl;
 						continue;
 				} else if (result + payloadPosition == payloadSize) {
-						cerr << "Reading payload succeeded, size: " << result << endl;
+                        //cerr << "Reading payload succeeded, size: " << result << endl;
 						payloadPosition = 0;
 
 						if (payloadType == PROTOCOL_TYPE_BINING) {
 							cout << "PROTOCOL_TYPE_BINING" << endl;
 							int32_t* tmp = reinterpret_cast<int32_t*>(payload);
 
-							inputPositionsCallback(tmp[0], tmp[1]);
+							inputCallback(tmp[0], tmp[1]);
+							delete[] tmp;
+						}else if (payloadType == PROTOCOL_TYPE_POSITION) {
+                            //cout << "PROTOCOL_TYPE_POSITION" << endl;
+							float* tmp = reinterpret_cast<float*>(payload);
+
+							positionCallback(tmp[0], tmp[1], tmp[2]);
 							delete[] tmp;
 						}
 

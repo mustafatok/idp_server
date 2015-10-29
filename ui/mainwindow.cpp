@@ -47,6 +47,8 @@ void MainWindow::serializeAndWrite()
     str.append(QString(";").append(ui->sizeX->text()));
     str.append(QString(";").append(ui->stdX->text()));
     str.append(QString(";").append(ui->stdY->text()));
+    str.append(QString(";").append(QString::number(ui->leftSlider->value())));
+    str.append(QString(";").append(QString::number(ui->rightSlider->value())));
     std::cout << str.toStdString() << std::endl;
 }
 
@@ -119,4 +121,36 @@ void MainWindow::on_radioButtonSingle_clicked(bool checked)
     ui->horizontalSlider->setEnabled(true);
     serializeAndWrite();
     sliderPressed = false;
+}
+
+void MainWindow::on_rightSlider_sliderPressed()
+{
+    sliderPressed = true;
+}
+
+void MainWindow::on_rightSlider_sliderReleased()
+{
+    serializeAndWrite();
+    sliderPressed = false;
+}
+
+void MainWindow::on_leftSlider_sliderPressed()
+{
+    sliderPressed = true;
+}
+
+void MainWindow::on_leftSlider_sliderReleased()
+{
+    serializeAndWrite();
+    sliderPressed = false;
+}
+
+void MainWindow::on_leftSlider_valueChanged(int value)
+{
+    if(sliderPressed != true) serializeAndWrite();
+}
+
+void MainWindow::on_rightSlider_valueChanged(int value)
+{
+    if(sliderPressed != true) serializeAndWrite();
 }
