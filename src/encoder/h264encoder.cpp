@@ -77,10 +77,13 @@ void H264Encoder::init()
         _parameters.analyse.i_subpel_refine = 1;
         _parameters.b_pre_scenecut = 1;
         _parameters.b_deblocking_filter = 1; 
+
         _parameters.analyse.b_ssim = 0; 
         _parameters.analyse.b_psnr = 0; 
+
+        //printf("scenecut thres; %d\n", _parameters.i_scenecut_threshold);
         _parameters.i_scenecut_threshold = 0; 
-        _parameters.i_keyint_min = 25; 
+        _parameters.i_keyint_min = 50; 
         _parameters.i_keyint_max = 50; 
 
         x264_param_t* tmpparam = new x264_param_t();

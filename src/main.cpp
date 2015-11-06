@@ -93,17 +93,19 @@ bool initDevice(){
 int main(int argc, char* argv[])
 {
 	// initDevice();
-	bool camera = false;
-	for(int i = 1; i < argc; ++i) {
-		std::string value(argv[i]);
-		if (value == "--camera") {
-			camera = true;
-		}
-	}
+	// bool camera = false;
+	// for(int i = 1; i < argc; ++i) {
+	// 	std::string value(argv[i]);
+	// 	if (value == "--camera") {
+	// 		camera = true;
+	// 	}
+	// }
 
 	int prevMode = -1;
+	std::string prevInputDevice = "";
 	int prevResizeFactor = -1;
 	string input;
+	std::string prevString = "";
 	for(;;) {
 		cin >> input;
 
@@ -118,20 +120,24 @@ int main(int argc, char* argv[])
 		while (std::getline(ss, item, ';')) {
 		    elems.push_back(item);
 		}
-		if(elems.size() != 8)
+		if(elems.size() != 10)
 			continue;
+		if(input == prevString)
+			prevMode = -1;
+		prevString = input;
 		
 		int inputMode = stoi(elems[0]);
-		int rbitRate = stoi(elems[1]);
-		int lbitRate = 1000 - rbitRate;
-		int resizeFactor = stoi(elems[2]);
-		int blurSizeX = stoi(elems[3]);
-		int stdX = stoi(elems[4]);
-		int stdY = stoi(elems[5]);
-		int leftX = stoi(elems[6]);
-		int rightX = stoi(elems[7]);
+		int rbitRate = stoi(elems[2]);
+		int lbitRate = stoi(elems[1]);
+		int resizeFactor = stoi(elems[3]);
+		int blurSizeX = stoi(elems[4]);
+		int stdX = stoi(elems[5]);
+		int stdY = stoi(elems[6]);
+		int leftX = stoi(elems[7]);
+		int rightX = stoi(elems[8]);
+		std::string inputDevice = elems[9];
 		
-		if(inputMode == prevMode && encoder != nullptr){
+		if(inputMode == prevMode && encoder != nullptr && inputDevice == prevInputDevice){
 			encoder->setBitRate(lbitRate, rbitRate);
 			encoder->setResizeFactor(resizeFactor);
 			encoder->setBlurParams(blurSizeX, stdX, stdY);
@@ -162,6 +168,8 @@ int main(int argc, char* argv[])
 		}
 
 		prevMode = inputMode;
+		prevInputDevice = inputDevice;
+
 		bool flag = false;
 		if(encoder == nullptr){
 			output.setConnectionCallback(onNewConnection);
@@ -183,12 +191,12 @@ int main(int argc, char* argv[])
 			 
 
 		}
-		if(camera){
+		if(inputDevice == "CAMERA"){
 			videoInput = new MultiFileInput("camera", "Allied Vision Technologies-50-0536874357", "Allied Vision Technologies-50-0536872642");
 		}else{
-			videoInput = new MultiFileInput("file", "/home/mustafa/Downloads/LEFT.avi", "/home/mustafa/Downloads/RIGHT.avi");
+			videoInput = new MultiFileInput("file", "./assets/" + inputDevice + "_LEFT.mp4", "./assets/" + inputDevice + "_RIGHT.mp4");
 		}
-		//videoInput->setInputOffsetX(leftX, rightX);
+		videoInput->setInputOffsetX(leftX, rightX);
 
 		if(videoInput->type() == "camera"){
 			encoder = new MultiH264Encoder(mode, 960, 544, resizeFactor);

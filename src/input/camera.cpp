@@ -18,8 +18,8 @@ extern "C" {
 
 using namespace std;
 
-std::mutex mtxRead;
-uint cntRead = 0;
+std::mutex mtxCRead;
+uint cntCRead = 0;
 
 #define XBINNING ((SENSORWIDTH-WIDTH)/2)
 #define YBINNING ((SENSORHEIGHT-HEIGHT)/2)
@@ -42,7 +42,7 @@ CameraInput::~CameraInput()
 
 void CameraInput::operator()()
 {
-	mtxRead.lock();
+	mtxCRead.lock();
 	stopped = false;
 	if (strncmp(cam_id.c_str(), "Fake_1", 4) == 0) {
 		arv_enable_interface("Fake");
@@ -102,12 +102,12 @@ void CameraInput::operator()()
 	}
 
 	stopped = false;
-	cntRead++;
-	mtxRead.unlock();
+	cntCRead++;
+	mtxCRead.unlock();
 	
-	cout << "cntRead" << " " << cntRead << endl;
+	cout << "cntCRead" << " " << cntCRead << endl;
 
-	while(cntRead != 2){
+	while(cntCRead != 2){
 		usleep(1000);
 	}
 
@@ -149,7 +149,7 @@ void CameraInput::operator()()
 	g_object_unref (camera);
 	sws_freeContext(swsContext);
 	_observer->onStatsCodeReceived(_id, STATUS_INPUT_END);
-	cntRead = 0;
+	cntCRead = 0;
 
 }
 

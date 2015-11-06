@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>755</width>
+    <width>805</width>
     <height>350</height>
    </rect>
   </property>
@@ -24,8 +24,8 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>20</y>
-      <width>674</width>
+      <y>50</y>
+      <width>721</width>
       <height>232</height>
      </rect>
     </property>
@@ -38,7 +38,7 @@
        <item>
         <widget class="QLabel" name="labelLeft">
          <property name="text">
-          <string>1000</string>
+          <string>1500</string>
          </property>
         </widget>
        </item>
@@ -51,7 +51,7 @@
           <number>0</number>
          </property>
          <property name="maximum">
-          <number>1000</number>
+          <number>1500</number>
          </property>
          <property name="singleStep">
           <number>50</number>
@@ -80,6 +80,31 @@
         <widget class="QLabel" name="labelRight">
          <property name="text">
           <string>0</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="maxBitRate">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>45</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>1500</string>
          </property>
         </widget>
        </item>
@@ -116,8 +141,21 @@
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
+         <property name="invertedAppearance">
+          <bool>true</bool>
+         </property>
+         <property name="invertedControls">
+          <bool>false</bool>
+         </property>
          <property name="tickPosition">
           <enum>QSlider::NoTicks</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>0</string>
          </property>
         </widget>
        </item>
@@ -150,8 +188,18 @@
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
+         <property name="invertedAppearance">
+          <bool>true</bool>
+         </property>
          <property name="tickPosition">
           <enum>QSlider::NoTicks</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>0</string>
          </property>
         </widget>
        </item>
@@ -267,6 +315,9 @@
            </item>
            <item>
             <widget class="QRadioButton" name="radioButtonQuarter">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="toolTip">
               <string>4</string>
              </property>
@@ -418,13 +469,107 @@
      </item>
     </layout>
    </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>775</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_11">
+     <item>
+      <widget class="QPushButton" name="btnBasketball">
+       <property name="text">
+        <string>BASKETBALL</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">inputButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnCycle">
+       <property name="text">
+        <string>CYCLE</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">inputButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnGarden">
+       <property name="text">
+        <string>GARDEN</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">inputButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnPiano">
+       <property name="text">
+        <string>PIANO</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">inputButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnSkateBoard">
+       <property name="text">
+        <string>SKATEBOARD</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">inputButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnStation">
+       <property name="text">
+        <string>STATION</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">inputButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnCamera">
+       <property name="text">
+        <string>CAMERA</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">inputButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnStart">
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+   background-color: rgb(12, 230, 50);
+}</string>
+       </property>
+       <property name="text">
+        <string>START</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>755</width>
+     <width>805</width>
      <height>25</height>
     </rect>
    </property>
@@ -452,12 +597,12 @@
    <slot>setText(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>669</x>
-     <y>248</y>
+     <x>716</x>
+     <y>278</y>
     </hint>
     <hint type="destinationlabel">
-     <x>709</x>
-     <y>248</y>
+     <x>756</x>
+     <y>278</y>
     </hint>
    </hints>
   </connection>
@@ -468,8 +613,8 @@
    <slot>buttonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>669</x>
-     <y>248</y>
+     <x>716</x>
+     <y>278</y>
     </hint>
     <hint type="destinationlabel">
      <x>497</x>
@@ -484,8 +629,8 @@
    <slot>buttonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>510</x>
-     <y>284</y>
+     <x>534</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>541</x>
@@ -500,8 +645,8 @@
    <slot>buttonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>708</x>
-     <y>284</y>
+     <x>755</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>625</x>
@@ -517,7 +662,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>300</x>
-     <y>279</y>
+     <y>309</y>
     </hint>
     <hint type="destinationlabel">
      <x>282</x>
@@ -533,7 +678,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>232</x>
-     <y>279</y>
+     <y>309</y>
     </hint>
     <hint type="destinationlabel">
      <x>171</x>
@@ -541,12 +686,46 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>leftSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>label</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>222</x>
+     <y>180</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>188</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rightSlider</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>label_2</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>743</x>
+     <y>180</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>758</x>
+     <y>188</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>buttonClicked()</slot>
   <slot>radioButtonClicked(bool)</slot>
+  <slot>buttonClicked(QAbstactButton*)</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="inputButtonGroup"/>
   <buttongroup name="sizeButtonGroup"/>
   <buttongroup name="modeButtonGroup"/>
  </buttongroups>

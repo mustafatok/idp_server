@@ -181,7 +181,6 @@ void MultiH264Encoder::blur(uint8_t** lframePlanes, int* lframePlaneSizes, int l
 }
 
 void MultiH264Encoder::resize(uint8_t** lframePlanes, int* lframePlaneSizes, int lplanes, bool lResize, uint8_t** rframePlanes, int* rframePlaneSizes, int rplanes, bool rResize){
-	// Make it free afterwards...
 	SwsContext *swsctx = sws_getContext(_width, _height,
                       PIX_FMT_YUV420P,
                       _width / _resizeFactor, _height / _resizeFactor,
@@ -189,9 +188,9 @@ void MultiH264Encoder::resize(uint8_t** lframePlanes, int* lframePlaneSizes, int
                       0, 0, 0, 0);
 
 	AVFrame* frame2 = av_frame_alloc();
-	int num_bytes = avpicture_get_size(PIX_FMT_YUV420P, _width / 2, _height / 2);
+	int num_bytes = avpicture_get_size(PIX_FMT_YUV420P, _width / _resizeFactor, _height / _resizeFactor);
 	uint8_t* frame2_buffer = (uint8_t *)av_malloc(num_bytes*sizeof(uint8_t));
-	avpicture_fill((AVPicture*)frame2, frame2_buffer, PIX_FMT_YUV420P, _width / 2, _height / 2);
+	avpicture_fill((AVPicture*)frame2, frame2_buffer, PIX_FMT_YUV420P, _width / _resizeFactor, _height / _resizeFactor);
 
 	if(lResize){
 		sws_scale(swsctx, lframePlanes, lframePlaneSizes, 0, _height, frame2->data, frame2->linesize);
@@ -318,9 +317,9 @@ void MultiH264Encoder::onSizeChanged(int id, int width, int height) {
 		_encoders[0].onSizeChanged(id, width, height);
 	}else{
 		if(_mode == (int) MODE_LEFTRESIZED){
-			id == LEFT ? _encoders[0].onSizeChanged(id, width / 2, height / 2) : _encoders[1].onSizeChanged(id, width, height);
+			id == LEFT ? _encoders[0].onSizeChanged(id, width / _resizeFactor, height / _resizeFactor) : _encoders[1].onSizeChanged(id, width, height);
 		}else if(_mode == (int) MODE_RIGHTRESIZED){
-			id == LEFT ? _encoders[0].onSizeChanged(id, width, height) : _encoders[1].onSizeChanged(id, width / 2, height / 2);
+			id == LEFT ? _encoders[0].onSizeChanged(id, width, height) : _encoders[1].onSizeChanged(id, width / _resizeFactor, height / _resizeFactor);
 		}else if(_mode == (int)MODE_LEFTBLURRED || _mode == (int) MODE_RIGHTBLURRED){
 			id == LEFT ? _encoders[0].onSizeChanged(id, width, height) : _encoders[1].onSizeChanged(id, width, height);
 		}else if(_mode == (int) MODE_INTERLEAVING){

@@ -135,7 +135,7 @@ void UdpSocket::operator()(){
 			} else if (payloadType == PROTOCOL_TYPE_INIT) {
 				cout << "PROTOCOL_TYPE_INIT" << endl;
 				remoteAddress = incomming;
-				// remoteAddress.sin_port = htons(7070);
+				remoteAddress.sin_port = htons(7070);
 				connectionCallback(&incomming, inlen);
 			} else if (payloadType == PROTOCOL_TYPE_CLOSE) {
 				closeConnectionCallback(&incomming, inlen);

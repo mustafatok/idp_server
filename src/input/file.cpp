@@ -12,6 +12,8 @@
 #include <memory>
 #include <stdint.h>
 #include <string.h>
+#include <mutex>
+#include <unistd.h>
 
 extern "C" {
 #include <libavutil/opt.h>
@@ -28,6 +30,9 @@ extern "C" {
 #include "../global.h"
 
 using namespace std;
+
+std::mutex mtxFRead;
+uint cntFRead = 0;
 
 FileInput::FileInput(std::string inputFile) : Input()
 {
@@ -51,6 +56,7 @@ int32_t FileInput::decodeFile()
         int32_t ret = 0;
         int32_t gotFrame = 0;
         stopped = false;
+        mtxFRead.lock();
 
         // open the input file and allocate the format context
         if (avformat_open_input(&formatContext, _inputFile.c_str(), nullptr, nullptr) <0) {
@@ -93,6 +99,14 @@ int32_t FileInput::decodeFile()
         packet.data = nullptr;
         packet.size = 0;
 
+        cntFRead++;
+        mtxFRead.unlock();
+
+        cout << "cntFRead" << " " << cntFRead << endl;
+
+        while(cntFRead != 2){
+            usleep(1000);
+        }
         // read from from the file
         while (av_read_frame(formatContext, &packet) >= 0) {
                 AVPacket orig = packet;
@@ -125,6 +139,7 @@ end:
         avformat_close_input(&formatContext);
         av_freep(&videoData[0]);
         stopped = false;
+        cntFRead = 0;
         return ret;
 }
 

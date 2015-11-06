@@ -159,7 +159,7 @@ void MultiFileInput::pushLeftFrame(uint8_t** framePlanes, int* framePlaneSizes, 
 	readyL = false;
 
 	if(_type == "file")
-		usleep(40 * 1000);
+		usleep(8 * 1000);
     // cout << " PLE " << endl;
 
 
@@ -181,7 +181,7 @@ void MultiFileInput::pushRightFrame(uint8_t** framePlanes, int* framePlaneSizes,
 	readyR = false;
 
 	if(_type == "file")
-		usleep(40 * 1000);
+		usleep(8 * 1000);
     // cout << " PRE " << endl;
 
 

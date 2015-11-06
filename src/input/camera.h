@@ -26,12 +26,12 @@ public:
         }
         void setInputOffsetX(int x){
                 _xbinning = (SENSORWIDTH-WIDTH)/2 + x;
-                arv_camera_set_region(camera, _xbinning, _ybinning, WIDTH, HEIGHT);
+                if(camera != nullptr)arv_camera_set_region(camera, _xbinning, _ybinning, WIDTH, HEIGHT);
         }
 
 private:
 
-        ArvCamera *camera;
+        ArvCamera *camera = nullptr;
         ArvStream *stream;
         ArvBuffer *buffer;
 
